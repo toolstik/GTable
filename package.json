@@ -14,7 +14,7 @@
     "build:spec": "grunt copy:spec",
     "upload": "sh upload.sh",
     "deploy": "npm run clean && npm run build && npm run upload",
-    "test": "npm run deploy"
+    "test": "npm run deploy && sh clasp.sh run test"
   },
   "dependencies": {},
   "devDependencies": {

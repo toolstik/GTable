@@ -37,5 +37,5 @@ GTable.prototype.values = function () {
 }
 
 GTable.create = function (sheetName, options) {
-    return new GTable(sheetName);
+    return new GTable(sheetName, options);
 }

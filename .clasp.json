@@ -1,4 +1,5 @@
 {
   "scriptId": "1-NXE3y6rsKrb4Law_Kj3sBV2Ix22exgYI1gXWjLMyakHJuBdvurCF46C",
-  "projectId":"project-id-7001669626526017827"
+  "projectId":"project-id-7001669626526017827",
+  "rootDir": "dist/"
 }

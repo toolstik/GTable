@@ -1,1 +1,0 @@
-cp spec dist -r

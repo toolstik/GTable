@@ -11,7 +11,6 @@ class GTable {
         this.sheet = this.options.spreadSheet.getSheetByName(sheetName);
     }
 
-
     dataRange() {
         if (this._dataRange !== undefined) return this._dataRange;
 
@@ -27,7 +26,9 @@ class GTable {
         if (numRows < 2 || numColumns < 1)
             return (this._dataRange = null);
 
-        this._dataRange = dataRange.offset(1, 0, numRows - 1, numColumns);
+        let headerOffset = this.options.header ? 1 : 0;
+
+        this._dataRange = dataRange.offset(headerOffset, 0, numRows - headerOffset, numColumns);
 
         return this._dataRange;
     }

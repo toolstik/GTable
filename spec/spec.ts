@@ -73,3 +73,13 @@ function test_items_and_rows_count_equals_with_offset_A1() {
     var table = GTable.create(_WORKSHEET_NAME, { offsetA1: "B4" });
     Assert.assertEquals(2, table.values().length);
 }
+
+function test_items_and_rows_count_equals_with_offset_A1_no_header() {
+    writeValues([
+        [1, "word1"],
+        [2, "word2"]
+    ], "B4");
+
+    var table = GTable.create(_WORKSHEET_NAME, { offsetA1: "B4", header: false });
+    Assert.assertEquals(2, table.values().length);
+}

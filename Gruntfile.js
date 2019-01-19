@@ -1,12 +1,13 @@
 module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        copy: {
+        concat: {
             src: {
-                files: [
-                    { expand: true, cwd: "src/", src: ['**/*.js', '**/*.ts'], dest: 'dist/', filter: 'isFile' }
-                ]
-            },
+                src: 'src/**/*.ts',
+                dest: 'dist/gtable.ts'
+            }
+        },
+        copy: {
             spec: {
                 files: [
                     { expand: true, cwd: "spec/", src: ['**/*.js', '**/*.ts'], dest: 'dist/', filter: 'isFile' }
@@ -26,11 +27,15 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-exec');
+
+    grunt.registerTask('build:src', ['concat:src']);
+    grunt.registerTask('build:test', ['build:src', 'copy:spec', 'copy:manifest']);
 
     grunt.registerTask('test', [
         'exec:clear_dist',
-        'copy:*',
+        'build:test',
         'exec:clasp_push',
         'exec:clasp_run_test'
     ]);

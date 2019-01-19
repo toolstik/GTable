@@ -4,12 +4,12 @@ module.exports = function (grunt) {
         copy: {
             src: {
                 files: [
-                    { expand: true, cwd: "src/", src: ['**/*.js'], dest: 'dist/', filter: 'isFile' }
+                    { expand: true, cwd: "src/", src: ['**/*.js', '**/*.ts'], dest: 'dist/', filter: 'isFile' }
                 ]
             },
             spec: {
                 files: [
-                    { expand: true, cwd: "spec/", src: ['**/*.js'], dest: 'dist/', filter: 'isFile' }
+                    { expand: true, cwd: "spec/", src: ['**/*.js', '**/*.ts'], dest: 'dist/', filter: 'isFile' }
                 ]
             },
             manifest: {

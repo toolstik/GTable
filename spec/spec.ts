@@ -3,12 +3,17 @@ var _WORKSHEET_NAME = '__test';
 var _WORKSHEET = _SPREADSHEET.getActiveSheet();
 var _WORKRANGE = _WORKSHEET.getActiveRange();
 
+// @ts-ignore
+var Runner: any = GSTestRunner;
+// @ts-ignore
+var Assert: any = GSUnit;
+
 function runSuite() {
     var options = {
         notify: false
     };
 
-    var result = GSTestRunner.runSuite(this, "allTests", options);
+    var result = Runner.runSuite(this, "allTests", options);
     return result.testsResults;
 }
 
@@ -22,7 +27,7 @@ function createSheet() {
     _WORKSHEET = _SPREADSHEET.insertSheet(_WORKSHEET_NAME);
 }
 
-function writeValues(values, start) {
+function writeValues(values, start?) {
     if (!values || !values.length)
         return;
 
@@ -44,7 +49,7 @@ function afterTest_() {
 
 function test_empty_values_on_empty_sheet() {
     var table = GTable.create(_WORKSHEET_NAME);
-    GSUnit.assertEquals(0, table.values().length);
+    Assert.assertEquals(0, table.values().length);
 }
 
 function test_items_and_rows_count_equals() {
@@ -55,7 +60,7 @@ function test_items_and_rows_count_equals() {
     ]);
 
     var table = GTable.create(_WORKSHEET_NAME);
-    GSUnit.assertEquals(2, table.values().length);
+    Assert.assertEquals(2, table.values().length);
 }
 
 function test_items_and_rows_count_equals_with_offset_A1() {
@@ -66,5 +71,5 @@ function test_items_and_rows_count_equals_with_offset_A1() {
     ], "B4");
 
     var table = GTable.create(_WORKSHEET_NAME, { offsetA1: "B4" });
-    GSUnit.assertEquals(2, table.values().length);
+    Assert.assertEquals(2, table.values().length);
 }

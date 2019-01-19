@@ -19,8 +19,8 @@ module.exports = function (grunt) {
             }
         },
         exec: {
-            clasp_push: "clasp push",
-            clasp_run_test: "clasp run test",
+            clasp_push: "clasp push -f",
+            clasp_run_test: "clasp run runSuite",
             clear_dist: "rm -r -f dist"
         }
     });

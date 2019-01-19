@@ -1,0 +1,14 @@
+{
+  "name": "gtable",
+  "version": "0.0.1",
+  "description": "\"An ORM for Google Apps scripts\"",
+  "scripts": {
+    "build": "sh build.sh",
+    "upload": "sh upload.sh",
+    "deploy": "npm run build && npm run upload"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/google-apps-script": "^0.0.35"
+  }
+}

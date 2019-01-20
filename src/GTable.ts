@@ -1,73 +1,54 @@
 class GTable {
 
     private _dataRange: GoogleAppsScript.Spreadsheet.Range;
-    private _headers: string[];
-    private _values: Object[][];
-
-    options: Options;
-    sheet: GoogleAppsScript.Spreadsheet.Sheet;
+    private _options: Options;
+    private _sheet: GoogleAppsScript.Spreadsheet.Sheet;
+    private _mapper: Mapper;
+    private _items: any[];
 
     constructor(sheetName: string, options: any) {
-        this.options = new Options(options);
-        this.sheet = this.options.spreadSheet.getSheetByName(sheetName);
+        this._options = new Options(options);
+        this._sheet = this._options.spreadSheet.getSheetByName(sheetName);
     }
 
     private read() {
-        const dataRange = this.sheet.getRange(this.options.offsetA1);
+        const dataRange = this._sheet.getRange(this._options.offsetA1);
         const firstRow = dataRange.getRow();
         const firstColumn = dataRange.getColumn();
-        const lastRow = this.sheet.getLastRow();
-        const lastColumn = this.sheet.getLastColumn();
+        const lastRow = this._sheet.getLastRow();
+        const lastColumn = this._sheet.getLastColumn();
 
         const numRows = lastRow - firstRow + 1;
         const numColumns = lastColumn - firstColumn + 1;
 
         if (numRows < 1 || numColumns < 1) {
             this._dataRange = null;
-            this._headers = null;
-            this._values = [];
+            this._items = [];
             return;
         }
 
         this._dataRange = dataRange.offset(0, 0, numRows, numColumns);
 
         const data = this._dataRange.getValues();
-        this._headers = this.options.header ? data.shift().map(h => h.toString()) : null;
-        this._values = data;
-    }
+        this._options.headers = this._options.header ? data.shift().map(h => h.toString()) : null;
+        this._mapper = new Mapper(this._options);
 
-    dataRange() {
-        if (this._dataRange === undefined)
-            this.read();
-        return this._dataRange;
-    }
-
-    values() {
-        if (this._values === undefined)
-            this.read();
-        return this._values;
-    }
-
-    headers() {
-        if (this._headers === undefined)
-            this.read();
-        return this._headers;
+        this._items = data.map(row => this._mapper.toObject(row));
     }
 
     static create(sheetName: string, options?: any) {
         return new GTable(sheetName, options);
     }
 
-    private createItem(row: Object[]): any {
-        return this.headers().reduce((prev, cur, i) => {
-            prev[cur] = row[i];
-            return prev;
-        }, {});
+    private items() {
+        if (this._items === undefined)
+            this.read();
+        return this._items;
     }
 
     findAll() {
-        return this.values()
-            .map(row => this.createItem(row));
+        return this.items();
     }
 
 }
+

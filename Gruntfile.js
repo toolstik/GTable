@@ -21,7 +21,7 @@ module.exports = function (grunt) {
         },
         exec: {
             clasp_push: "clasp push -f",
-            clasp_run_test: "clasp run runSuite",
+            clasp_run_test: "clasp run runFeatureTests",
             clear_dist: "rm -r -f dist"
         }
     });

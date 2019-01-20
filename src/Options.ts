@@ -1,6 +1,7 @@
 class Options {
 
     header: boolean;
+    headers: string[];
     offsetA1: string;
     spreadSheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
 

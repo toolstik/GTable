@@ -104,4 +104,45 @@ class FeatureSuite {
         Assert.assertObjectEquals({ a: 2, b: "word2" }, items[1]);
     }
 
+    test_index_mapping() {
+        this.writeValues([
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"]
+        ]);
+
+        const options = {
+            fields: [
+                { name: "A" },
+                { name: "B" }
+            ]
+        };
+        const table = GTable.create(_WORKSHEET_NAME, options);
+        const items = table.findAll();
+        Assert.assertEquals(2, items.length);
+        Assert.assertObjectEquals({ A: 1, B: "word1" }, items[0]);
+        Assert.assertObjectEquals({ A: 2, B: "word2" }, items[1]);
+    }
+
+    test_name_mapping() {
+        this.writeValues([
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"]
+        ]);
+
+        const options = {
+            fields: [
+                { name: "B", columnName: "b" },
+                { name: "A", columnName: "a" }
+
+            ]
+        };
+        const table = GTable.create(_WORKSHEET_NAME, options);
+        const items = table.findAll();
+        Assert.assertEquals(2, items.length);
+        Assert.assertObjectEquals({ A: 1, B: "word1" }, items[0]);
+        Assert.assertObjectEquals({ A: 2, B: "word2" }, items[1]);
+    }
+
 }

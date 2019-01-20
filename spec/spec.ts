@@ -13,8 +13,8 @@ function runSuite(suite: any) {
         notify: false
     };
 
-    const result = Runner.runSuite(suite, (typeof suite).toString(), options);
-    return result.testsResults;
+    const result = Runner.runSuite(suite, suite.constructor.name, options);
+    return result;
 }
 
 function runFeatureTests() {

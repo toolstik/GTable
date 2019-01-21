@@ -59,7 +59,9 @@ class GTable {
             return (this._values = []);
 
         const data = meta.dataRange.getValues();
-        this._headers = this._headers || (this._options.header ? data.shift().map(h => h.toString()) : null);
+
+        const headers = this._options.header ? data.shift().map(h => h.toString()) : null;
+        this._headers = this._headers || headers;
         this._values = data;
         return this._values;
     }
@@ -121,16 +123,17 @@ class GTable {
 
         } else {
             // insert
-            const mapResult = this._mapper.mapToRow(obj);
-            const newIndex = this._values.push(mapResult.value) - 1;
+            const mapResult = this.mapper().mapToRow(obj);
+            const newIndex = this.values().push(mapResult.value) - 1;
             this._changes.push(newIndex);
         }
     }
 
     commit() {
         const meta = this.storageMeta();
-        const range = meta.dataRange.offset(this._options.header ? 1 : 0, 0, this._values.length, meta.columnsCount);
-        range.setValues(this._values);
+        const values = this.values();
+        const range = meta.dataRange.offset(this._options.header ? 1 : 0, 0, values.length, meta.columnsCount);
+        range.setValues(values);
         this._changes = [];
     }
 

@@ -261,47 +261,42 @@ class FeatureSuite {
             [2, "word2"],
             [3, "word3"],
         ]
-        Assert.assertObjectEquals(expected, _WORKRANGE.getValues());
+        Assert.assertObjectEquals(expected, _WORKRANGE.offset(0, 0, 4).getValues());
     }
 
 }
 
-Assert.assertObjectEquals = function()
-{
-	Assert.GsUnit.validateArguments(2, arguments);
-	var var1 = Assert.GsUnit.nonCommentArg(1, 2, arguments);
-	var var2 = Assert.GsUnit.nonCommentArg(2, 2, arguments);
-	var failureMessage = Assert.GsUnit.commentArg(2, arguments) ? Assert.GsUnit.commentArg(2, arguments) : '';
-	
-	if (var1 === var2)
-		return;
-	
-	var isEqual = false;
-	var typeOfVar1 = Assert.GsUnit.trueTypeOf(var1);
-	var typeOfVar2 = Assert.GsUnit.trueTypeOf(var2);
-	
-	if (typeOfVar1 == typeOfVar2)
-	{
-		var primitiveEqualityPredicate = Assert.GsUnit.PRIMITIVE_EQUALITY_PREDICATES[(typeof var1)];
-		
-		if (primitiveEqualityPredicate)
-		{
-			isEqual = primitiveEqualityPredicate(var1, var2);
-		}
-		else
-		{
-			// var expectedKeys = Assert.GsUnit.Util.getKeys(var1).sort().join(", ");
-			// var actualKeys = Assert.GsUnit.Util.getKeys(var2).sort().join(", ");
-			// if (expectedKeys != actualKeys)
-			// {
-			// 	Assert.GsUnit.assert(failureMessage, false, 'Expected keys "' + expectedKeys + '" but found "' + actualKeys + '"');
-			// }
-			for (var i in var1)
-			{
-				Assert.assertObjectEquals(failureMessage + ' found nested ' + typeOfVar1 + '@' + i + '\n', var1[i], var2[i]);
-			}
-			isEqual = true;
-		}
-	}
-	Assert.GsUnit.assert(failureMessage, isEqual, 'Expected ' + Assert.GsUnit.displayStringForValue(var1) + ' but was ' + Assert.GsUnit.displayStringForValue(var2));
+Assert.assertObjectEquals = function () {
+    Assert.GsUnit.validateArguments(2, arguments);
+    var var1 = Assert.GsUnit.nonCommentArg(1, 2, arguments);
+    var var2 = Assert.GsUnit.nonCommentArg(2, 2, arguments);
+    var failureMessage = Assert.GsUnit.commentArg(2, arguments) ? Assert.GsUnit.commentArg(2, arguments) : '';
+
+    if (var1 === var2)
+        return;
+
+    var isEqual = false;
+    var typeOfVar1 = Assert.GsUnit.trueTypeOf(var1);
+    var typeOfVar2 = Assert.GsUnit.trueTypeOf(var2);
+
+    if (typeOfVar1 == typeOfVar2) {
+        var primitiveEqualityPredicate = Assert.GsUnit.PRIMITIVE_EQUALITY_PREDICATES[(typeof var1)];
+
+        if (primitiveEqualityPredicate) {
+            isEqual = primitiveEqualityPredicate(var1, var2);
+        }
+        else {
+            // var expectedKeys = Assert.GsUnit.Util.getKeys(var1).sort().join(", ");
+            // var actualKeys = Assert.GsUnit.Util.getKeys(var2).sort().join(", ");
+            // if (expectedKeys != actualKeys)
+            // {
+            // 	Assert.GsUnit.assert(failureMessage, false, 'Expected keys "' + expectedKeys + '" but found "' + actualKeys + '"');
+            // }
+            for (var i in var1) {
+                Assert.assertObjectEquals(failureMessage + ' found nested ' + typeOfVar1 + '@' + i + '\n', var1[i], var2[i]);
+            }
+            isEqual = true;
+        }
+    }
+    Assert.GsUnit.assert(failureMessage, isEqual, 'Expected ' + Assert.GsUnit.displayStringForValue(var1) + ' but was ' + Assert.GsUnit.displayStringForValue(var2));
 }

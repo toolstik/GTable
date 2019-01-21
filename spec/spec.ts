@@ -267,3 +267,9 @@ class FeatureSuite {
     }
 
 }
+
+Assert.assertObjectIncludes = function (expected, actual) {
+    for (var key in expected) {
+        this.assertEquals(expected[key], actual[key]);
+    }
+}

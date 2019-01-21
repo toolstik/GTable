@@ -96,7 +96,7 @@ class GTable {
     private items() {
         const values = this.values();
         const mapper = this.mapper();
-        return values.map(row => mapper.mapToObject(row));
+        return values.map((row, i) => mapper.mapToObject(row, i));
     }
 
     findAll() {
@@ -110,11 +110,12 @@ class GTable {
 
         if (index >= 0) {
             // update
-            const current = this._values[index];
-            const mapResult = this._mapper.mapToRow(obj, current);
+            const values = this.values();
+            const current = values[index];
+            const mapResult = this.mapper().mapToRow(obj, current);
 
             if (mapResult.changed) {
-                this._values[index] = mapResult.value;
+                values[index] = mapResult.value;
                 this._changes.push(index);
             }
 

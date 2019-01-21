@@ -9,7 +9,10 @@ class Mapper {
     }) {
         this._options = options.options;
         this._headers = options.headers;
+
         this._fields = this._initFields();
+        if (this._fields)
+            this._fields.unshift(FieldOptions.IndexField());
     }
 
     private _initFields() {
@@ -76,14 +79,18 @@ class Mapper {
         return false;
     }
 
-    mapToObject(row: Object[]): any {
+    mapToObject(row: Object[], index: number): any {
         if (!this._fields)
             return row;
 
-        return this._fields.reduce((res, fld) => {
+        const result = this._fields.reduce((res, fld) => {
             this.mapFieldToObject(fld, row, res);
             return res;
         }, {});
+
+        result[FieldOptions.IndexField().name] = index;
+
+        return result;
     }
 
     mapToRow(obj: any, currentRow?: Object[]): { value: Object[], changed: boolean } {

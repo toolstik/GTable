@@ -11,9 +11,17 @@ class GTable {
         columnsCount: number;
     };
 
+    private _localStorage: {
+        maxIndex?: number;
+        items?: Object[];
+        updates?: { [index: number]: Model };
+        inserts?: { [index: number]: Model };
+        detetes?: { [index: number]: Model };
+    }
+
     private _changes: number[];
 
-    constructor(sheetName: string, options: any) {
+    constructor(sheetName: string, options: Options) {
         this._options = new Options(options);
         this._sheet = this._options.spreadSheet.getSheetByName(sheetName);
         this._changes = [];
@@ -109,12 +117,13 @@ class GTable {
         if (!obj) return;
 
         const index = obj[FieldOptions.IndexField().name];
+        const mapper = this.mapper();
 
         if (index >= 0) {
             // update
             const values = this.values();
             const current = values[index];
-            const mapResult = this.mapper().mapToRow(obj, current);
+            const mapResult = mapper.mapToRow(obj, current);
 
             if (mapResult.changed) {
                 values[index] = mapResult.value;
@@ -123,7 +132,7 @@ class GTable {
 
         } else {
             // insert
-            const mapResult = this.mapper().mapToRow(obj);
+            const mapResult = mapper.mapToRow(obj);
             const newIndex = this.values().push(mapResult.value) - 1;
             this._changes.push(newIndex);
         }
@@ -138,4 +147,3 @@ class GTable {
     }
 
 }
-

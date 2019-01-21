@@ -10,18 +10,17 @@ class Mapper {
         this._options = options.options;
         this._headers = options.headers;
 
-        this._fields = this._initFields();
-        if (this._fields)
-            this._fields.unshift(FieldOptions.IndexField());
+        this._fields = this.fields();
     }
 
-    private _initFields() {
-        if (!this._options.fields) {
-            if (!this._headers) {
-                return null;
-            }
+    private fields() {
+        if (this._fields !== undefined) return this._fields;
 
-            return this._headers.map((h, i) => {
+        if (!this._options.fields) {
+            if (!this._headers)
+                throw new Error(`Unable to get fields list`);
+
+            this._fields = this._headers.map((h, i) => {
                 const fld: FieldOptions = {
                     name: h,
                     columnIndex: i,
@@ -29,6 +28,7 @@ class Mapper {
                 };
                 return fld;
             });
+            return this._fields;
         }
 
         let headerMap: { [name: string]: number; } = null;
@@ -38,7 +38,7 @@ class Mapper {
                 return prev;
             }, {})
 
-        return this._options.fields.map((fld, i) => {
+        this._fields = this._options.fields.map((fld, i) => {
 
             if (fld.columnIndex == null) {
                 if (!fld.columnName)
@@ -59,9 +59,10 @@ class Mapper {
 
             return fld;
         });
+        return this._fields;
     }
 
-    private mapFieldToObject(field: FieldOptions, row: Object[], target: any) {
+    private mapFieldToObject(field: FieldOptions, row: Object[], target: Model) {
         const newValue = row[field.columnIndex];
         if (target[field.name] != newValue) {
             target[field.name] = newValue;
@@ -70,7 +71,7 @@ class Mapper {
         return false;
     }
 
-    private mapFieldToRow(field: FieldOptions, obj: any, target: Object[]) {
+    private mapFieldToRow(field: FieldOptions, obj: Model, target: Object[]) {
         const newValue = obj[field.name];
         if (target[field.columnIndex] != newValue) {
             target[field.columnIndex] = newValue;
@@ -79,27 +80,20 @@ class Mapper {
         return false;
     }
 
-    mapToObject(row: Object[], index: number): any {
-        if (!this._fields)
-            return row;
-
-        const result = this._fields.reduce((res, fld) => {
+    mapToObject(row: Object[], index: number): Model {
+        let result: Model = { __index: index };
+        result = this.fields().reduce((res, fld) => {
             this.mapFieldToObject(fld, row, res);
             return res;
-        }, {});
-
-        result[FieldOptions.IndexField().name] = index;
+        }, result);
 
         return result;
     }
 
-    mapToRow(obj: any, currentRow?: Object[]): { value: Object[], changed: boolean } {
-        if (!this._fields)
-            return { value: obj, changed: true };
-
+    mapToRow(obj: Model, currentRow?: Object[]): { value: Object[], changed: boolean } {
         let changed = false;
         const newRow = currentRow ? currentRow.slice(0) : [];
-        const result = this._fields.reduce((res, fld) => {
+        const result = this.fields().reduce((res, fld) => {
             const fieldChanged = this.mapFieldToRow(fld, obj, res);
             if (fieldChanged)
                 changed = true;

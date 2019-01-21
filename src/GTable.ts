@@ -13,10 +13,10 @@ class GTable {
 
     private _localStorage: {
         maxIndex?: number;
-        items?: Object[];
-        updates?: { [index: number]: Model };
-        inserts?: { [index: number]: Model };
-        detetes?: { [index: number]: Model };
+        items?: Model[];
+        updates: { [index: number]: Model };
+        inserts: { [index: number]: Model };
+        deletes: { [index: number]: Model };
     }
 
     private _changes: number[];
@@ -25,6 +25,11 @@ class GTable {
         this._options = new Options(options);
         this._sheet = this._options.spreadSheet.getSheetByName(sheetName);
         this._changes = [];
+        this._localStorage = {
+            updates: {},
+            inserts: {},
+            deletes: {}
+        };
     }
 
     private storageMeta() {
@@ -104,30 +109,36 @@ class GTable {
     }
 
     private items() {
-        const values = this.values();
-        const mapper = this.mapper();
-        return values.map((row, i) => mapper.mapToObject(row, i));
+        if (!this._localStorage.items) {
+            const values = this.values();
+            const mapper = this.mapper();
+            this._localStorage.items = values.map((row, i) => mapper.mapToObject(row, i));
+        }
+
+        return this._localStorage.items
+            .filter(i => !this._localStorage.deletes[i.__index])
+            .map(i => this._localStorage.updates[i.__index] || i)
+            .concat(Object.values(this._localStorage.inserts));
     }
 
     findAll() {
         return this.items();
     }
 
-    save(obj: any) {
+    save(obj: Model) {
         if (!obj) return;
 
-        const index = obj[FieldOptions.IndexField().name];
         const mapper = this.mapper();
 
-        if (index >= 0) {
+        if (obj.__index >= 0) {
             // update
             const values = this.values();
-            const current = values[index];
+            const current = values[obj.__index];
             const mapResult = mapper.mapToRow(obj, current);
 
             if (mapResult.changed) {
-                values[index] = mapResult.value;
-                this._changes.push(index);
+                values[obj.__index] = mapResult.value;
+                this._changes.push(obj.__index);
             }
 
         } else {

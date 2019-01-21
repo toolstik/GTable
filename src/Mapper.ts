@@ -1,19 +1,24 @@
 class Mapper {
     private _options: Options;
     private _fields: FieldOptions[];
+    private _headers: string[];
 
-    constructor(options: Options) {
-        this._options = options;
+    constructor(options: {
+        options: Options,
+        headers: string[]
+    }) {
+        this._options = options.options;
+        this._headers = options.headers;
         this._fields = this._initFields();
     }
 
     private _initFields() {
         if (!this._options.fields) {
-            if (!this._options.headers) {
+            if (!this._headers) {
                 return null;
             }
 
-            return this._options.headers.map((h, i) => {
+            return this._headers.map((h, i) => {
                 const fld: FieldOptions = {
                     name: h,
                     columnIndex: i,
@@ -24,8 +29,8 @@ class Mapper {
         }
 
         let headerMap: { [name: string]: number; } = null;
-        if (this._options.header && this._options.headers)
-            headerMap = this._options.headers.reduce((prev, h, i) => {
+        if (this._options.header && this._headers)
+            headerMap = this._headers.reduce((prev, h, i) => {
                 prev[h] = i;
                 return prev;
             }, {})
@@ -43,7 +48,7 @@ class Mapper {
                 }
             }
 
-            fld.columnName = this._options.headers ? this._options.headers[fld.columnIndex] : null;
+            fld.columnName = this._headers ? this._headers[fld.columnIndex] : null;
             fld.name = fld.name || fld.columnName;
 
             if (!fld.name)

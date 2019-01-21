@@ -241,4 +241,29 @@ class FeatureSuite {
         Assert.assertObjectEquals(expected, _WORKRANGE.getValues());
     }
 
+    test_save_insert_without_read() {
+        const values = [
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"]
+        ]
+        this.writeValues(values);
+
+        const table = GTable.create(_WORKSHEET_NAME);
+        const item3 = {
+            a: 3,
+            b: "word3"
+        };
+        table.save(item3);
+        table.commit();
+
+        const expected = [
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"],
+            [3, "word3"],
+        ]
+        Assert.assertObjectEquals(expected, _WORKRANGE.getValues());
+    }
+
 }

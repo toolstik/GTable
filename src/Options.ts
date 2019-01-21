@@ -1,18 +1,19 @@
 class Options {
 
-    header: boolean = true;
+    header: boolean;
     headers: string[];
-    offsetA1: string = "A1";
+    offsetA1: string;
     spreadSheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
 
     fields: FieldOptions[];
 
-    constructor(options: any) {
-        options = options || {};
-        this.header = options.header != null ? options.header : true;
-        this.offsetA1 = options.offsetA1 || "A1";
-        this.spreadSheet = options.spreadSheet || SpreadsheetApp.getActive();
-        this.fields = options.fields;
+    constructor(options?: Options) {
+        if (options)
+            Object.assign(this, options);
+
+        this.header = this.header != null ? this.header : true;
+        this.offsetA1 = this.offsetA1 || "A1";
+        this.spreadSheet = this.spreadSheet || SpreadsheetApp.getActive();
     }
 
 }
@@ -22,8 +23,10 @@ class FieldOptions {
     columnIndex?: number;
     columnName?: string;
 
-    static IndexField: FieldOptions = {
-        name: "__index"
+    public static IndexField(): FieldOptions {
+        return {
+            name: "__index"
+        };
     };
 
 }

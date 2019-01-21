@@ -53,25 +53,47 @@ class Mapper {
         });
     }
 
-    toObject(row: Object[]): any {
+    private mapFieldToObject(field: FieldOptions, row: Object[], target: any) {
+        const newValue = row[field.columnIndex];
+        if (target[field.name] != newValue) {
+            target[field.name] = newValue;
+            return true;
+        }
+        return false;
+    }
+
+    private mapFieldToRow(field: FieldOptions, obj: any, target: Object[]) {
+        const newValue = obj[field.name];
+        if (target[field.columnIndex] != newValue) {
+            target[field.columnIndex] = newValue;
+            return true;
+        }
+        return false;
+    }
+
+    mapToObject(row: Object[]): any {
         if (!this._fields)
             return row;
 
-        return this._fields.reduce((prev, fld) => {
-            prev[fld.name] = row[fld.columnIndex];
-            return prev;
+        return this._fields.reduce((res, fld) => {
+            this.mapFieldToObject(fld, row, res);
+            return res;
         }, {});
     }
 
-    toRow(obj: any, currentRow?: Object[]) : Object[] {
+    mapToRow(obj: any, currentRow?: Object[]): { value: Object[], changed: boolean } {
         if (!this._fields)
-            return obj;
+            return { value: obj, changed: true };
 
-        const result = this._fields.reduce((res, fld) =>{
-            // todo
+        let changed = false;
+        const newRow = currentRow ? currentRow.slice(0) : [];
+        const result = this._fields.reduce((res, fld) => {
+            const fieldChanged = this.mapFieldToRow(fld, obj, res);
+            if (fieldChanged)
+                changed = true;
             return res;
-        }, currentRow || []);
+        }, newRow);
 
-        return result;
+        return { value: result, changed: changed };
     }
 }

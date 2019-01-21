@@ -8,17 +8,23 @@ const Runner: any = GSTestRunner;
 // @ts-ignore
 const Assert: any = GSUnit;
 
-function runSuite(suite: any) {
+function runSuite(suite: any, test?: string) {
     const options = {
         notify: false
     };
 
-    const result = Runner.runSuite(suite, suite.constructor.name, options);
+    const result = test
+        ? Runner.runTest(suite, suite.constructor.name)
+        : Runner.runSuite(suite, suite.constructor.name, options);
     return result;
 }
 
 function runFeatureTests() {
     return runSuite(new FeatureSuite());
+}
+
+function runFeatureTest(testName: string) {
+    return runSuite(new FeatureSuite(), testName);
 }
 
 class FeatureSuite {
@@ -33,6 +39,15 @@ class FeatureSuite {
         _WORKSHEET = _SPREADSHEET.insertSheet(_WORKSHEET_NAME);
     }
 
+    clearSheet() {
+        _WORKSHEET = _SPREADSHEET.getSheetByName(_WORKSHEET_NAME);
+
+        if (!_WORKSHEET)
+            _WORKSHEET = _SPREADSHEET.insertSheet(_WORKSHEET_NAME);
+        else
+            _WORKSHEET.clear();
+    }
+
     writeValues(values, start?) {
         if (!values || !values.length)
             return;
@@ -45,31 +60,24 @@ class FeatureSuite {
     }
 
     beforeTest_() {
-        this.deleteSheet();
-        this.createSheet();
+        this.clearSheet();
     }
 
     afterTest_() {
         // this.deleteSheet();
     }
 
-    test_empty_values_on_empty_sheet() {
+    test_blank_sheet() {
         const table = GTable.create(_WORKSHEET_NAME);
         Assert.assertEquals(0, table.findAll().length);
     }
 
-    test_items_and_rows_count_equals() {
-        this.writeValues([
-            ["a", "b"],
-            [1, "word1"],
-            [2, "word2"]
-        ]);
-
-        const table = GTable.create(_WORKSHEET_NAME);
-        Assert.assertEquals(2, table.findAll().length);
+    test_blank_sheet_no_header() {
+        const table = GTable.create(_WORKSHEET_NAME, { header: false });
+        Assert.assertEquals(0, table.findAll().length);
     }
 
-    test_items_and_rows_count_equals_with_offset_A1() {
+    test_mapping_auto_with_offset() {
         this.writeValues([
             ["a", "b"],
             [1, "word1"],
@@ -80,7 +88,7 @@ class FeatureSuite {
         Assert.assertEquals(2, table.findAll().length);
     }
 
-    test_items_and_rows_count_equals_with_offset_A1_no_header() {
+    test_mapping_auto_with_offset_no_header() {
         this.writeValues([
             [1, "word1"],
             [2, "word2"]
@@ -90,7 +98,7 @@ class FeatureSuite {
         Assert.assertEquals(2, table.findAll().length);
     }
 
-    test_auto_mapping() {
+    test_mapping_auto() {
         this.writeValues([
             ["a", "b"],
             [1, "word1"],
@@ -104,7 +112,21 @@ class FeatureSuite {
         Assert.assertObjectEquals({ a: 2, b: "word2" }, items[1]);
     }
 
-    test_index_mapping() {
+    test_mapping_auto_no_header() {
+        this.writeValues([
+            [1, "word1"],
+            [2, "word2"]
+        ]);
+
+        const table = GTable.create(_WORKSHEET_NAME, { header: false });
+        const items = table.findAll();
+        Assert.assertObjectEquals([
+            [1, "word1"],
+            [2, "word2"]
+        ], items);
+    }
+
+    test_mapping_by_index() {
         this.writeValues([
             ["a", "b"],
             [1, "word1"],
@@ -119,12 +141,34 @@ class FeatureSuite {
         };
         const table = GTable.create(_WORKSHEET_NAME, options);
         const items = table.findAll();
-        Assert.assertEquals(2, items.length);
-        Assert.assertObjectEquals({ A: 1, B: "word1" }, items[0]);
-        Assert.assertObjectEquals({ A: 2, B: "word2" }, items[1]);
+        Assert.assertObjectEquals([
+            { A: 1, B: "word1" },
+            { A: 2, B: "word2" }
+        ], items);
     }
 
-    test_name_mapping() {
+    test_mapping_by_index_no_header() {
+        this.writeValues([
+            [1, "word1"],
+            [2, "word2"]
+        ]);
+
+        const options = {
+            header: false,
+            fields: [
+                { name: "A" },
+                { name: "B" }
+            ]
+        };
+        const table = GTable.create(_WORKSHEET_NAME, options);
+        const items = table.findAll();
+        Assert.assertObjectEquals([
+            { A: 1, B: "word1" },
+            { A: 2, B: "word2" }
+        ], items);
+    }
+
+    test_mapping_by_name() {
         this.writeValues([
             ["a", "b"],
             [1, "word1"],
@@ -135,7 +179,6 @@ class FeatureSuite {
             fields: [
                 { name: "B", columnName: "b" },
                 { name: "A", columnName: "a" }
-
             ]
         };
         const table = GTable.create(_WORKSHEET_NAME, options);
@@ -143,6 +186,59 @@ class FeatureSuite {
         Assert.assertEquals(2, items.length);
         Assert.assertObjectEquals({ A: 1, B: "word1" }, items[0]);
         Assert.assertObjectEquals({ A: 2, B: "word2" }, items[1]);
+    }
+
+    test_commit_no_changes() {
+        const values = [
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"]
+        ]
+        this.writeValues(values);
+
+        const table = GTable.create(_WORKSHEET_NAME);
+        const items = table.findAll();
+        table.commit();
+        Assert.assertObjectEquals(values, _WORKRANGE.getValues());
+    }
+
+    test_save_no_commit_no_changes() {
+        const values = [
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"]
+        ]
+        this.writeValues(values);
+
+        const table = GTable.create(_WORKSHEET_NAME);
+        const items = table.findAll();
+        const item1 = items[0];
+        item1.a = 10;
+        table.save(item1);
+        Assert.assertObjectEquals(values, _WORKRANGE.getValues());
+    }
+
+    test_save_update() {
+        const values = [
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"]
+        ]
+        this.writeValues(values);
+
+        const table = GTable.create(_WORKSHEET_NAME);
+        const items = table.findAll();
+        const item2 = items[1];
+        item2.a = 10;
+        table.save(item2);
+        table.commit();
+
+        const expected = [
+            ["a", "b"],
+            [1, "word1"],
+            [10, "word2"]
+        ]
+        Assert.assertObjectEquals(expected, _WORKRANGE.getValues());
     }
 
 }

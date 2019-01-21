@@ -19,7 +19,11 @@ class Options {
 
 class FieldOptions {
     name: string;
-    index?: number;
+    columnIndex?: number;
     columnName?: string;
+
+    static IndexField: FieldOptions = {
+        name: "__index"
+    };
 
 }

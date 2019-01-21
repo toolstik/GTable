@@ -4,7 +4,7 @@ class GTable {
     private _options: Options;
     private _sheet: GoogleAppsScript.Spreadsheet.Sheet;
     private _mapper: Mapper;
-    private _items: any[];
+    private _values: Object[][];
 
     constructor(sheetName: string, options: any) {
         this._options = new Options(options);
@@ -12,28 +12,31 @@ class GTable {
     }
 
     private read() {
-        const dataRange = this._sheet.getRange(this._options.offsetA1);
-        const firstRow = dataRange.getRow();
-        const firstColumn = dataRange.getColumn();
-        const lastRow = this._sheet.getLastRow();
-        const lastColumn = this._sheet.getLastColumn();
+        const offsetRange = this._sheet.getRange(this._options.offsetA1);
+        const sheetDataRange = this._sheet.getDataRange();
+        const firstRow = offsetRange.getRow();
+        const firstColumn = offsetRange.getColumn();
+        const lastRow = sheetDataRange.getLastRow();
+        const lastColumn = sheetDataRange.getLastColumn();
 
         const numRows = lastRow - firstRow + 1;
         const numColumns = lastColumn - firstColumn + 1;
 
-        if (numRows < 1 || numColumns < 1) {
+        if (numRows < 1 || numColumns < 1
+            //empty sheet case
+            || (numRows == 1 && numColumns == 1 && offsetRange.getCell(1, 1).isBlank())) {
             this._dataRange = null;
-            this._items = [];
+            this._values = [];
             return;
         }
 
-        this._dataRange = dataRange.offset(0, 0, numRows, numColumns);
+        this._dataRange = offsetRange.offset(0, 0, numRows, numColumns);
 
         const data = this._dataRange.getValues();
         this._options.headers = this._options.header ? data.shift().map(h => h.toString()) : null;
         this._mapper = new Mapper(this._options);
 
-        this._items = data.map(row => this._mapper.toObject(row));
+        this._values = data;
     }
 
     static create(sheetName: string, options?: any) {
@@ -41,13 +44,21 @@ class GTable {
     }
 
     private items() {
-        if (this._items === undefined)
+        if (this._values === undefined)
             this.read();
-        return this._items;
+        return this._values.map(row => this._mapper.toObject(row));
     }
 
     findAll() {
         return this.items();
+    }
+
+    save(obj:any){
+        
+    }
+
+    commit(){
+
     }
 
 }

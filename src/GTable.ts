@@ -1,97 +1,14 @@
-class GTable {
+class Repository {
     private _options: Options;
-    private _sheet: GoogleAppsScript.Spreadsheet.Sheet;
+
+    private _table: Table;
     private _mapper: Mapper;
-    private _headers: string[];
-    private _values: Object[][];
-
-    private _storageMeta: {
-        dataRange: GoogleAppsScript.Spreadsheet.Range;
-        headers?: string[];
-        columnsCount: number;
-    };
-
-    private _localStorage: {
-        maxIndex?: number;
-        items?: Model[];
-        updates: { [index: number]: Model };
-        inserts: { [index: number]: Model };
-        deletes: { [index: number]: Model };
-    }
-
-    private _changes: number[];
+    private _cache: CacheL2;
 
     constructor(sheetName: string, options: Options) {
         this._options = new Options(options);
-        this._sheet = this._options.spreadSheet.getSheetByName(sheetName);
-        this._changes = [];
-        this._localStorage = {
-            updates: {},
-            inserts: {},
-            deletes: {}
-        };
-    }
-
-    private storageMeta() {
-        if (this._storageMeta !== undefined) return this._storageMeta;
-
-        const offsetRange = this._sheet.getRange(this._options.offsetA1);
-        const sheetDataRange = this._sheet.getDataRange();
-        const firstRow = offsetRange.getRow();
-        const firstColumn = offsetRange.getColumn();
-        const lastRow = sheetDataRange.getLastRow();
-        const lastColumn = sheetDataRange.getLastColumn();
-
-        const numRows = lastRow - firstRow + 1;
-        const numColumns = lastColumn - firstColumn + 1;
-
-        if (numRows < 1 || numColumns < 1
-            //empty sheet case
-            || (numRows == 1 && numColumns == 1 && offsetRange.getCell(1, 1).isBlank())) {
-            this._storageMeta = {
-                dataRange: null,
-                columnsCount: 0
-            }
-            return this._storageMeta;
-        }
-
-        this._storageMeta = {
-            dataRange: offsetRange.offset(0, 0, numRows, numColumns),
-            columnsCount: numColumns
-        };
-
-        return this._storageMeta;
-    }
-
-    private values() {
-        if (this._values !== undefined) return this._values;
-
-        const meta = this.storageMeta();
-
-        if (!meta.dataRange)
-            return (this._values = []);
-
-        const data = meta.dataRange.getValues();
-
-        const headers = this._options.header ? data.shift().map(h => h.toString()) : null;
-        this._headers = this._headers || headers;
-        this._values = data;
-        return this._values;
-    }
-
-    private headers() {
-        if (this._headers !== undefined) return this._headers;
-
-        if (!this._options.header)
-            return (this._headers = null);
-
-        const meta = this.storageMeta();
-
-        if (!meta.dataRange)
-            return (this._headers = null);
-
-        this._headers = meta.dataRange.offset(0, 0, 1, meta.columnsCount).getValues()[0].map(h => h.toString());
-        return this._headers;
+        this._table = new Table(sheetName, options);
+        this._cache = new CacheL2();
     }
 
     private mapper() {
@@ -99,26 +16,23 @@ class GTable {
 
         this._mapper = new Mapper({
             options: this._options,
-            headers: this.headers()
+            headers: this._table.headers()
         });
         return this._mapper;
     }
 
     static create(sheetName: string, options?: any) {
-        return new GTable(sheetName, options);
+        return new Repository(sheetName, options);
     }
 
     private items() {
-        if (!this._localStorage.items) {
-            const values = this.values();
+        if (!this._cache.items) {
+            const values = this._table.values();
             const mapper = this.mapper();
-            this._localStorage.items = values.map((row, i) => mapper.mapToObject(row, i));
+            const items = values.map((row, i) => mapper.mapToObject(row, i));
+            this._cache.setItems(items);
         }
-
-        return this._localStorage.items
-            .filter(i => !this._localStorage.deletes[i.__index])
-            .map(i => this._localStorage.updates[i.__index] || i)
-            .concat(Object.values(this._localStorage.inserts));
+        return Object.values(this._cache.items);
     }
 
     findAll() {
@@ -126,35 +40,40 @@ class GTable {
     }
 
     save(obj: Model) {
-        if (!obj) return;
-
-        const mapper = this.mapper();
-
-        if (obj.__index >= 0) {
-            // update
-            const values = this.values();
-            const current = values[obj.__index];
-            const mapResult = mapper.mapToRow(obj, current);
-
-            if (mapResult.changed) {
-                values[obj.__index] = mapResult.value;
-                this._changes.push(obj.__index);
-            }
-
-        } else {
-            // insert
-            const mapResult = mapper.mapToRow(obj);
-            const newIndex = this.values().push(mapResult.value) - 1;
-            this._changes.push(newIndex);
-        }
+        this._cache.save(obj);
     }
 
     commit() {
-        const meta = this.storageMeta();
-        const values = this.values();
-        const range = meta.dataRange.offset(this._options.header ? 1 : 0, 0, values.length, meta.columnsCount);
-        range.setValues(values);
-        this._changes = [];
+
+        if (!this._cache.hasChanges) return;
+
+        const mapper = this.mapper();
+
+        if (this._cache.isInsertOnly) {
+            
+            const values = this._cache.inserts.map(i => mapper.mapToRow(i).value);
+            this._table.append(values);
+            this._cache.resetChanges();
+            return;
+        }
+
+        const values = this._table.values();
+        const upsertValues: Object[][] = []
+
+        for (let i = this._cache.minChangedIndex;
+            i <= Math.min(this._cache.minChangedIndex, values.length - 1); i++) {
+            const row = values[i];
+            const update = this._cache.updates[i]
+            const newRow = update ? mapper.mapToRow(update, row).value : row;
+
+            upsertValues.push(newRow);
+        }
+
+        const inserts = this._cache.inserts.map(i => mapper.mapToRow(i).value);
+        upsertValues.concat(inserts);
+
+        this._table.upsert(upsertValues, this._cache.minChangedIndex);
+        this._cache.resetChanges();
     }
 
 }

@@ -8,6 +8,10 @@ const Runner: any = GSTestRunner;
 // @ts-ignore
 const Assert: any = GSUnit;
 
+function test(){
+    return new FeatureSuite().test_mapping_auto();
+}
+
 function runSuite(suite: any, test?: string) {
     const options = {
         notify: false
@@ -74,7 +78,7 @@ class FeatureSuite {
                 { name: "B" }
             ]
         };
-        const table = GTable.create(_WORKSHEET_NAME, options);
+        const table = Repository.create(_WORKSHEET_NAME, options);
         const items = table.findAll();
         Assert.assertObjectEquals([], items);
     }
@@ -87,7 +91,7 @@ class FeatureSuite {
                 { name: "B" }
             ]
         };
-        const table = GTable.create(_WORKSHEET_NAME, options);
+        const table = Repository.create(_WORKSHEET_NAME, options);
         const items = table.findAll();
         Assert.assertObjectEquals([], items);
     }
@@ -99,7 +103,7 @@ class FeatureSuite {
             [2, "word2"]
         ], "B4");
 
-        const table = GTable.create(_WORKSHEET_NAME, { offsetA1: "B4" });
+        const table = Repository.create(_WORKSHEET_NAME, { offsetA1: "B4" });
         const items = table.findAll();
         Assert.assertObjectEquals([{ a: 1, b: "word1" }, { a: 2, b: "word2" }], items);
     }
@@ -110,7 +114,7 @@ class FeatureSuite {
             [2, "word2"]
         ], "B4");
 
-        const table = GTable.create(_WORKSHEET_NAME, {
+        const table = Repository.create(_WORKSHEET_NAME, {
             offsetA1: "B4",
             header: false,
             fields: [
@@ -129,7 +133,7 @@ class FeatureSuite {
             [2, "word2"]
         ]);
 
-        const table = GTable.create(_WORKSHEET_NAME);
+        const table = Repository.create(_WORKSHEET_NAME);
         const items = table.findAll();
         Assert.assertObjectEquals([{ a: 1, b: "word1" }, { a: 2, b: "word2" }], items);
     }
@@ -140,7 +144,7 @@ class FeatureSuite {
             [2, "word2"]
         ]);
 
-        const table = GTable.create(_WORKSHEET_NAME, {
+        const table = Repository.create(_WORKSHEET_NAME, {
             header: false,
             fields: [
                 { name: "A" },
@@ -164,7 +168,7 @@ class FeatureSuite {
                 { name: "B" }
             ]
         };
-        const table = GTable.create(_WORKSHEET_NAME, options);
+        const table = Repository.create(_WORKSHEET_NAME, options);
         const items = table.findAll();
         Assert.assertObjectEquals([
             { A: 1, B: "word1" },
@@ -185,7 +189,7 @@ class FeatureSuite {
                 { name: "B" }
             ]
         };
-        const table = GTable.create(_WORKSHEET_NAME, options);
+        const table = Repository.create(_WORKSHEET_NAME, options);
         const items = table.findAll();
         Assert.assertObjectEquals([
             { A: 1, B: "word1" },
@@ -206,7 +210,7 @@ class FeatureSuite {
                 { name: "A", columnName: "a" }
             ]
         };
-        const table = GTable.create(_WORKSHEET_NAME, options);
+        const table = Repository.create(_WORKSHEET_NAME, options);
         const items = table.findAll();
         Assert.assertObjectEquals([{ A: 1, B: "word1" }, { A: 2, B: "word2" }], items);
     }
@@ -219,7 +223,7 @@ class FeatureSuite {
         ]
         this.writeValues(values);
 
-        const table = GTable.create(_WORKSHEET_NAME);
+        const table = Repository.create(_WORKSHEET_NAME);
         const items = table.findAll();
         table.commit();
         Assert.assertObjectEquals(values, _WORKRANGE.getValues());
@@ -233,7 +237,7 @@ class FeatureSuite {
         ]
         this.writeValues(values);
 
-        const table = GTable.create(_WORKSHEET_NAME);
+        const table = Repository.create(_WORKSHEET_NAME);
         const items = table.findAll();
         const item1 = items[0];
         item1.a = 10;
@@ -249,7 +253,7 @@ class FeatureSuite {
         ]
         this.writeValues(values);
 
-        const table = GTable.create(_WORKSHEET_NAME);
+        const table = Repository.create(_WORKSHEET_NAME);
         const items = table.findAll();
         const item2 = items[1];
         item2.a = 10;
@@ -272,7 +276,7 @@ class FeatureSuite {
         ]
         this.writeValues(values);
 
-        const table = GTable.create(_WORKSHEET_NAME);
+        const table = Repository.create(_WORKSHEET_NAME);
         const item3 = {
             a: 3,
             b: "word3"

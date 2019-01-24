@@ -1,10 +1,10 @@
 class Options {
 
-    header: boolean;
-    offsetA1: string;
-    spreadSheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
+    header?: boolean;
+    offsetA1?: string;
+    spreadSheet?: GoogleAppsScript.Spreadsheet.Spreadsheet;
 
-    fields: FieldOptions[];
+    fields?: FieldOptions[];
 
     constructor(options?: Options) {
         if (options)

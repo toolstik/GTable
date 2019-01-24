@@ -21,7 +21,7 @@ class Repository {
         return this._mapper;
     }
 
-    static create(sheetName: string, options?: any) {
+    static create(sheetName: string, options?: Options) {
         return new Repository(sheetName, options);
     }
 
@@ -49,20 +49,20 @@ class Repository {
 
         const mapper = this.mapper();
 
-        if (this._cache.isInsertOnly) {
+        if (this._cache.isInsertOnly()) {
             
-            const values = this._cache.inserts.map(i => mapper.mapToRow(i).value);
-            this._table.append(values);
+            const newRows = this._cache.inserts.map(i => mapper.mapToRow(i).value);
+            this._table.append(newRows);
             this._cache.resetChanges();
             return;
         }
 
-        const values = this._table.values();
+        const upsertRows = this._table.values();
         const upsertValues: Object[][] = []
 
         for (let i = this._cache.minChangedIndex;
-            i <= Math.min(this._cache.minChangedIndex, values.length - 1); i++) {
-            const row = values[i];
+            i <= Math.min(this._cache.maxChangedIndex, upsertRows.length - 1); i++) {
+            const row = upsertRows[i];
             const update = this._cache.updates[i]
             const newRow = update ? mapper.mapToRow(update, row).value : row;
 

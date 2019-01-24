@@ -1,15 +1,14 @@
 const _SPREADSHEET = SpreadsheetApp.getActive();
 const _WORKSHEET_NAME = '__test';
 let _WORKSHEET = _SPREADSHEET.getActiveSheet();
-let _WORKRANGE = _WORKSHEET.getActiveRange();
 
 // @ts-ignore
 const Runner: any = GSTestRunner;
 // @ts-ignore
 const Assert: any = GSUnit;
 
-function test(){
-    return new FeatureSuite().test_mapping_auto();
+function test() {
+    return new FeatureSuite().test_save_insert_without_read();
 }
 
 function runSuite(suite: any, test?: string) {
@@ -56,11 +55,26 @@ class FeatureSuite {
         if (!values || !values.length)
             return;
 
-        _WORKRANGE = _WORKSHEET
+        const range = _WORKSHEET
             .getRange(start || "A1")
             .offset(0, 0, values.length, values[0].length);
 
-        _WORKRANGE.setValues(values);
+        range.setValues(values);
+
+        return range;
+    }
+
+    writeFormulasR1C1(values, start?) {
+        if (!values || !values.length)
+            return;
+
+        const range = _WORKSHEET
+            .getRange(start || "A1")
+            .offset(0, 0, values.length, values[0].length);
+
+        range.setFormulasR1C1(values);
+
+        return range;
     }
 
     beforeTest_() {
@@ -221,12 +235,12 @@ class FeatureSuite {
             [1, "word1"],
             [2, "word2"]
         ]
-        this.writeValues(values);
+        const range = this.writeValues(values);
 
         const table = Repository.create(_WORKSHEET_NAME);
         const items = table.findAll();
         table.commit();
-        Assert.assertObjectEquals(values, _WORKRANGE.getValues());
+        Assert.assertObjectEquals(values, range.getValues());
     }
 
     test_save_no_commit_no_changes() {
@@ -235,14 +249,14 @@ class FeatureSuite {
             [1, "word1"],
             [2, "word2"]
         ]
-        this.writeValues(values);
+        const range = this.writeValues(values);
 
         const table = Repository.create(_WORKSHEET_NAME);
         const items = table.findAll();
         const item1 = items[0];
         item1.a = 10;
         table.save(item1);
-        Assert.assertObjectEquals(values, _WORKRANGE.getValues());
+        Assert.assertObjectEquals(values, range.getValues());
     }
 
     test_save_update() {
@@ -251,7 +265,7 @@ class FeatureSuite {
             [1, "word1"],
             [2, "word2"]
         ]
-        this.writeValues(values);
+        const range = this.writeValues(values);
 
         const table = Repository.create(_WORKSHEET_NAME);
         const items = table.findAll();
@@ -265,7 +279,7 @@ class FeatureSuite {
             [1, "word1"],
             [10, "word2"]
         ]
-        Assert.assertObjectEquals(expected, _WORKRANGE.getValues());
+        Assert.assertObjectEquals(expected, range.getValues());
     }
 
     test_save_insert_without_read() {
@@ -274,7 +288,7 @@ class FeatureSuite {
             [1, "word1"],
             [2, "word2"]
         ]
-        this.writeValues(values);
+        const range = this.writeValues(values);
 
         const table = Repository.create(_WORKSHEET_NAME);
         const item3 = {
@@ -290,7 +304,57 @@ class FeatureSuite {
             [2, "word2"],
             [3, "word3"],
         ]
-        Assert.assertObjectEquals(expected, _WORKRANGE.offset(0, 0, 4).getValues());
+        Assert.assertObjectEquals(expected, range.offset(0, 0, 4).getValues());
+    }
+
+
+    test_mapping_formula_as_string() {
+        const values = [
+            ["a", "b", "c"],
+            [1, "word1", 0],
+            [2, "word2", 0]
+        ];
+
+        const formulas = [
+            ["=RC[-2]+1"],
+            ["=RC[-2]+1"],
+        ];
+
+        const range = this.writeValues(values);
+        const formulasRange = this.writeFormulasR1C1(formulas, "C2")
+
+        const table = Repository.create(_WORKSHEET_NAME, {
+            fields: [
+                { name: "A" },
+                { name: "B" },
+                { name: "C", formula: "=RC[-2]+1" },
+            ]
+        });
+
+        const items = table.findAll();
+        Assert.assertObjectEquals([
+            { A: 1, B: "word1", C: 2 },
+            { A: 2, B: "word2", C: 3 }
+        ], items);
+
+        const item1 = items[0];
+        item1.A = 2;
+        item1.B = "what???";
+        table.save(item1);
+
+        const item2 = items[0];
+        item2.A = 3;
+        table.save(item2);
+
+        table.commit();
+
+        const expected = [
+            ["a", "b", "c"],
+            [2, "word1", 3],
+            [3, "word2", 4]
+        ]
+        Assert.assertObjectEquals(expected, range.getValues());
+        Assert.assertObjectEquals(formulas, formulasRange.getFormulasR1C1());
     }
 
 }
@@ -309,7 +373,7 @@ Assert.assertObjectEquals = function () {
     var typeOfVar2 = Assert.GsUnit.trueTypeOf(var2);
 
     if (typeOfVar1 == typeOfVar2) {
-        var primitiveEqualityPredicate = Assert.GsUnit.PRIMITIVE_EQUALITY_PREDICATES[(typeof var1)];
+        var primitiveEqualityPredicate = Assert.GsUnit.PRIMITIVE_EQUALITY_PREDICATES[typeOfVar1];
 
         if (primitiveEqualityPredicate) {
             isEqual = primitiveEqualityPredicate(var1, var2);

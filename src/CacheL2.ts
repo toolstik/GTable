@@ -54,8 +54,8 @@ class CacheL2 {
     }
 
     private updateChangedIndex(i: number) {
-        this.minChangedIndex = Math.min(this.minChangedIndex, i);
-        this.maxChangedIndex = Math.max(this.maxChangedIndex, i);
+        this.minChangedIndex = this.minChangedIndex == undefined ? i : Math.min(this.minChangedIndex, i);
+        this.maxChangedIndex = this.maxChangedIndex == undefined ? i : Math.max(this.maxChangedIndex, i);
     }
 
     save(obj: Model) {
@@ -67,6 +67,7 @@ class CacheL2 {
             this.updateChangedIndex(obj.__index);
             if (this.items)
                 this.items[obj.__index] = obj;
+            this.updateCount++;
             //todo update index
         } else {
             // insert
@@ -76,6 +77,7 @@ class CacheL2 {
                 this.items[this.increment] = obj;
                 //todo update index
             }
+            this.insertCount++;
         }
     }
 

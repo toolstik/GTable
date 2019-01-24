@@ -81,15 +81,25 @@ class Table {
         return this._headers;
     }
 
-    append(values: Object[][]) {
-        if (!values || !(values.length > 0)) return;
+    private writeFormulas(range: GoogleAppsScript.Spreadsheet.Range, formulaSections: string[][][]) {
+        if (!formulaSections || formulaSections.length == 0)
+            return;
 
-        const meta = this.storageMeta();
-        this.upsert(values, meta.rowsCount - (this._options.header ? 1 : 0));
+        for (let i = 0; i < formulaSections.length; i++) {
+            const data = formulaSections[i];
+            if(!data) continue;
+            range.offset(0, i, range.getNumRows(), data[0].length).setFormulasR1C1(data);
+        }
     }
 
-    upsert(values: Object[][], startIndex: number) {
-        if (!values || !(values.length > 0) || startIndex < 0) return;
+    append(rows: Object[][], formulaSections: string[][][]) {
+        if (!rows || !(rows.length > 0)) return;
+        const meta = this.storageMeta();
+        this.upsert(rows, meta.rowsCount - (this._options.header ? 1 : 0), formulaSections);
+    }
+
+    upsert(rows: Object[][], startIndex: number, formulaSections: string[][][]) {
+        if (!rows || !(rows.length > 0) || startIndex < 0) return;
 
         const meta = this.storageMeta();
         const rowOffset = startIndex + (this._options.header ? 1 : 0);
@@ -97,9 +107,10 @@ class Table {
         if (rowOffset > meta.rowsCount)
             throw new Error('Insert produces blank rows');
 
-        const range = meta.dataRange.offset(rowOffset, 0, values.length, meta.columnsCount);
-        range.setValues(values);
-        meta.rowsCount = Math.max(rowOffset + values.length, meta.rowsCount);
+        const range = meta.dataRange.offset(rowOffset, 0, rows.length, meta.columnsCount);
+        range.setValues(rows);
+        this.writeFormulas(range, formulaSections);
+        meta.rowsCount = Math.max(rowOffset + rows.length, meta.rowsCount);
         meta.dataRange = meta.dataRange.offset(0, 0, meta.rowsCount, meta.columnsCount);
     }
 }

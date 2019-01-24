@@ -2,7 +2,7 @@
 
 - [x] auto-mapping
 - [x] save
-- [ ] formulas
+- [x] formulas
 - [ ] readonly fields
 - [ ] type ?
 - [ ] indexing
@@ -11,3 +11,5 @@
 - [ ] cascade
 - [ ] delete
 - [ ] transactions
+- [ ] formula functions
+- [ ] formula A1

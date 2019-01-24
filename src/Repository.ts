@@ -50,9 +50,9 @@ class Repository {
         const mapper = this.mapper();
 
         if (this._cache.isInsertOnly()) {
-            
+
             const newRows = this._cache.inserts.map(i => mapper.mapToRow(i).value);
-            this._table.append(newRows);
+            this._table.append(newRows, mapper.formulaColumns(newRows.length));
             this._cache.resetChanges();
             return;
         }
@@ -72,7 +72,8 @@ class Repository {
         const inserts = this._cache.inserts.map(i => mapper.mapToRow(i).value);
         upsertValues.concat(inserts);
 
-        this._table.upsert(upsertValues, this._cache.minChangedIndex);
+        this._table
+            .upsert(upsertValues, this._cache.minChangedIndex, mapper.formulaColumns(upsertValues.length));
         this._cache.resetChanges();
     }
 

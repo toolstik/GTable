@@ -102,4 +102,19 @@ class Mapper {
 
         return { value: result, changed: changed };
     }
+
+    formulaColumns(rowsCount: number) {
+        const result: string[][][] = [];
+        for (let field of this.fields()) {
+            if (field.formula != null) {
+                const column: string[][] = [];
+                for (let i = 0; i < rowsCount; i++)
+                    column[i] = [field.formula];
+
+                result[field.columnIndex] = column;
+            } else
+                result[field.columnIndex] = null;
+        }
+        return result;
+    }
 }

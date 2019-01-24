@@ -307,7 +307,6 @@ class FeatureSuite {
         Assert.assertObjectEquals(expected, range.offset(0, 0, 4).getValues());
     }
 
-
     test_mapping_formula_as_string() {
         const values = [
             ["a", "b", "c"],
@@ -316,8 +315,8 @@ class FeatureSuite {
         ];
 
         const formulas = [
-            ["=RC[-2]+1"],
-            ["=RC[-2]+1"],
+            ["=R[0]C[-2]+1"],
+            ["=R[0]C[-2]+1"],
         ];
 
         const range = this.writeValues(values);
@@ -339,10 +338,10 @@ class FeatureSuite {
 
         const item1 = items[0];
         item1.A = 2;
-        item1.B = "what???";
+        item1.C = 15;
         table.save(item1);
 
-        const item2 = items[0];
+        const item2 = items[1];
         item2.A = 3;
         table.save(item2);
 

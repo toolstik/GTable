@@ -63,10 +63,13 @@ class Repository {
         for (let i = this._cache.minChangedIndex;
             i <= Math.min(this._cache.maxChangedIndex, upsertRows.length - 1); i++) {
             const row = upsertRows[i];
-            const update = this._cache.updates[i]
-            const newRow = update ? mapper.mapToRow(update, row).value : row;
+            const update = this._cache.updates[i];
+            if (update) {
+                const mapResult = mapper.mapToRow(update, row);
+                const newRow = mapResult.changed ? mapResult.value : row;
 
-            upsertValues.push(newRow);
+                upsertValues.push(newRow);
+            }
         }
 
         const inserts = this._cache.inserts.map(i => mapper.mapToRow(i).value);

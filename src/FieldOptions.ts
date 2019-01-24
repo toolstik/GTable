@@ -3,4 +3,5 @@ class FieldOptions {
     columnIndex?: number;
     columnName?: string;
     formula?: string;
+    readonly?: boolean;
 }

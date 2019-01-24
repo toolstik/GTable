@@ -8,7 +8,7 @@ const Runner: any = GSTestRunner;
 const Assert: any = GSUnit;
 
 function test() {
-    return new FeatureSuite().test_save_insert_without_read();
+    return new FeatureSuite().test_save_update_readonly();
 }
 
 function runSuite(suite: any, test?: string) {
@@ -282,6 +282,31 @@ class FeatureSuite {
         Assert.assertObjectEquals(expected, range.getValues());
     }
 
+    test_save_update_no_changes() {
+        const values = [
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"]
+        ]
+        const range = this.writeValues(values);
+
+        const table = Repository.create(_WORKSHEET_NAME);
+        const items = table.findAll();
+        const item2 = items[1];
+        item2.a = 10;
+        table.save(item2);
+        item2.a = 2;
+        table.save(item2);
+        table.commit();
+
+        const expected = [
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"]
+        ]
+        Assert.assertObjectEquals(expected, range.getValues());
+    }
+
     test_save_insert_without_read() {
         const values = [
             ["a", "b"],
@@ -354,6 +379,35 @@ class FeatureSuite {
         ]
         Assert.assertObjectEquals(expected, range.getValues());
         Assert.assertObjectEquals(formulas, formulasRange.getFormulasR1C1());
+    }
+
+    test_save_update_readonly() {
+        const values = [
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"]
+        ]
+        const range = this.writeValues(values);
+
+        const table = Repository.create(_WORKSHEET_NAME, {
+            fields: [
+                { name: "a", readonly: true },
+                { name: "b" }
+            ]
+        });
+        const items = table.findAll();
+        const item2 = items[1];
+        item2.a = 10;
+        item2.b = "new_word";
+        table.save(item2);
+        table.commit();
+
+        const expected = [
+            ["a", "b"],
+            [1, "word1"],
+            [2, "new_word"]
+        ]
+        Assert.assertObjectEquals(expected, range.getValues());
     }
 
 }

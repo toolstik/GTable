@@ -3,8 +3,9 @@
 - [x] auto-mapping
 - [x] save
 - [x] formulas
-- [ ] readonly fields
+- [x] readonly fields
 - [ ] type ?
+- [ ] default value
 - [ ] indexing
 - [ ] multi-table model
 - [ ] joins

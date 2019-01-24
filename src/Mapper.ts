@@ -57,6 +57,9 @@ class Mapper {
             if (!fld.name)
                 throw new Error(`Unable to get field name with index ${fld.columnIndex}`);
 
+            if (fld.readonly == null)
+                fld.readonly = false;
+
             return fld;
         });
         return this._fields;
@@ -72,6 +75,9 @@ class Mapper {
     }
 
     private mapFieldToRow(field: FieldOptions, obj: Model, target: Object[]) {
+        if (field.readonly)
+            return false;
+
         const newValue = obj[field.name];
         if (target[field.columnIndex] != newValue) {
             target[field.columnIndex] = newValue;

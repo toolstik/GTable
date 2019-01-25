@@ -2,11 +2,11 @@ class CacheL2 {
     increment: number;
     minChangedIndex: number;
     maxChangedIndex: number;
-    items: { [index: number]: Model };
+    items: { [index: number]: Entity };
 
-    updates: { [index: number]: Model };
-    inserts: Model[];
-    deletes: { [index: number]: Model };
+    updates: { [index: number]: Entity };
+    inserts: Entity[];
+    deletes: { [index: number]: Entity };
 
     private updateCount: number;
     private insertCount: number;
@@ -38,7 +38,7 @@ class CacheL2 {
         return this.insertCount > 0 || this.updateCount > 0 || this.deleteCount > 0;
     }
 
-    setItems(items: Model[]) {
+    setItems(items: Entity[]) {
         if (!items) return;
 
         this.items = items.reduce((res, i) => {
@@ -58,7 +58,7 @@ class CacheL2 {
         this.maxChangedIndex = this.maxChangedIndex == undefined ? i : Math.max(this.maxChangedIndex, i);
     }
 
-    save(obj: Model) {
+    save(obj: Entity) {
         if (!obj) return;
 
         if (obj.__index >= 0) {
@@ -81,7 +81,7 @@ class CacheL2 {
         }
     }
 
-    remove(obj: Model) {
+    remove(obj: Entity) {
         if (!obj || !(obj.__index >= 0)) return;
 
         this.deletes[obj.__index] = obj;

@@ -1,4 +1,4 @@
-class Model {
+class Entity {
     __index?: number;
     [field: string]: any;
 }

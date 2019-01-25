@@ -6,6 +6,7 @@
 - [x] readonly fields
 - [ ] type ?
 - [ ] default value
+- [ ] find
 - [ ] indexing
 - [ ] multi-table model
 - [ ] joins

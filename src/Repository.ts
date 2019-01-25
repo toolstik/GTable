@@ -39,7 +39,7 @@ class Repository {
         return this.items();
     }
 
-    save(obj: Model) {
+    save(obj: Entity) {
         this._cache.save(obj);
     }
 

@@ -65,7 +65,7 @@ class Mapper {
         return this._fields;
     }
 
-    private mapFieldToObject(field: FieldOptions, row: Object[], target: Model) {
+    private mapFieldToObject(field: FieldOptions, row: Object[], target: Entity) {
         const newValue = row[field.columnIndex];
         if (target[field.name] != newValue) {
             target[field.name] = newValue;
@@ -74,7 +74,7 @@ class Mapper {
         return false;
     }
 
-    private mapFieldToRow(field: FieldOptions, obj: Model, target: Object[]) {
+    private mapFieldToRow(field: FieldOptions, obj: Entity, target: Object[]) {
         if (field.readonly)
             return false;
 
@@ -86,8 +86,8 @@ class Mapper {
         return false;
     }
 
-    mapToObject(row: Object[], index: number): Model {
-        let result: Model = { __index: index };
+    mapToObject(row: Object[], index: number): Entity {
+        let result: Entity = { __index: index };
         result = this.fields().reduce((res, fld) => {
             this.mapFieldToObject(fld, row, res);
             return res;
@@ -96,7 +96,7 @@ class Mapper {
         return result;
     }
 
-    mapToRow(obj: Model, currentRow?: Object[]): { value: Object[], changed: boolean } {
+    mapToRow(obj: Entity, currentRow?: Object[]): { value: Object[], changed: boolean } {
         let changed = false;
         const newRow = currentRow ? currentRow.slice(0) : [];
         const result = this.fields().reduce((res, fld) => {

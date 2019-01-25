@@ -5,14 +5,13 @@ module.exports = function (grunt) {
             src: {
                 src: 'src/**/*.ts',
                 dest: 'dist/gtable.ts'
+            },
+            spec: {
+                src: 'spec/**/*.ts',
+                dest: 'dist/spec.ts'
             }
         },
         copy: {
-            spec: {
-                files: [
-                    { expand: true, cwd: "spec/", src: ['**/*.js', '**/*.ts'], dest: 'dist/', filter: 'isFile' }
-                ]
-            },
             manifest: {
                 files: [
                     { expand: true, src: ['appsscript.json'], dest: 'dist/', filter: 'isFile' }
@@ -31,7 +30,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-exec');
 
     grunt.registerTask('build:src', ['concat:src']);
-    grunt.registerTask('build:test', ['build:src', 'copy:spec', 'copy:manifest']);
+    grunt.registerTask('build:test', ['build:src', 'concat:spec', 'copy:manifest']);
 
     grunt.registerTask('test', [
         'exec:clear_dist',

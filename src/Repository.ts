@@ -5,9 +5,9 @@ class Repository {
     private _mapper: Mapper;
     private _cache: CacheL2;
 
-    constructor(sheetName: string, options: Options) {
+    constructor(options: Options) {
         this._options = new Options(options);
-        this._table = new Table(sheetName, options);
+        this._table = new Table(options);
         this._cache = new CacheL2();
     }
 
@@ -21,8 +21,8 @@ class Repository {
         return this._mapper;
     }
 
-    static create(sheetName: string, options?: Options) {
-        return new Repository(sheetName, options);
+    static create(options?: Options) {
+        return new Repository(options);
     }
 
     private items() {
@@ -81,3 +81,6 @@ class Repository {
     }
 
 }
+
+
+

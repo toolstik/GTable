@@ -1,6 +1,5 @@
 class Table {
     private _options: Options;
-    private _sheet: GoogleAppsScript.Spreadsheet.Sheet;
     private _headers: string[];
     private _values: Object[][];
 
@@ -11,17 +10,16 @@ class Table {
         rowsCount: number;
     };
 
-    constructor(sheetName: string, options: Options) {
+    constructor(options: Options) {
         this._options = new Options(options);
-        this._sheet = this._options.spreadSheet.getSheetByName(sheetName);
     }
 
     private storageMeta() {
         if (this._storageMeta !== undefined)
             return this._storageMeta;
 
-        const offsetRange = this._sheet.getRange(this._options.offsetA1);
-        const sheetDataRange = this._sheet.getDataRange();
+        const offsetRange = this._options.sheet.getRange(this._options.offsetA1);
+        const sheetDataRange = this._options.sheet.getDataRange();
         const firstRow = offsetRange.getRow();
         const firstColumn = offsetRange.getColumn();
         const lastRow = sheetDataRange.getLastRow();

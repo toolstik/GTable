@@ -3,7 +3,7 @@ class EntitySession {
     private _types: { [type: string]: Repository };
     private _options: SessionOptions;
 
-    constructor(options: SessionOptions) {
+    constructor(options?: SessionOptions) {
         this._options = options || new SessionOptions();
         this._types = {};
 

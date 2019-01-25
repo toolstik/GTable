@@ -18,12 +18,35 @@ function runSuite(suite: TestSuite, test?: string) {
     return result;
 }
 
-function runFeatureTests() {
+function runRepositoryTests() {
     return runSuite(new RepositoryTestSuite());
+}
+
+function runSessionTests() {
+    return runSuite(new SessionTestSuite());
 }
 
 function runFeatureTest(testName: string) {
     return runSuite(new RepositoryTestSuite(), testName);
+}
+
+function deleteAllSheets() {
+    const spreadSheet = SpreadsheetApp.getActive();
+    spreadSheet.getSheets().forEach(s => {
+        spreadSheet.deleteSheet(s);
+    });
+}
+
+function getSheet(name: string) {
+    const spreadSheet = SpreadsheetApp.getActive();
+    return spreadSheet.getSheetByName(name) || spreadSheet.insertSheet(name);
+}
+
+function clearAllSheets() {
+    const spreadSheet = SpreadsheetApp.getActive();
+    spreadSheet.getSheets().forEach(s => {
+        s.clear();
+    });
 }
 
 Assert.assertObjectEquals = function () {

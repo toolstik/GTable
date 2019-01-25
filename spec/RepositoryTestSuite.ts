@@ -1,70 +1,31 @@
-class RepositoryTestSuite implements TestSuite {
+class RepositoryTestSuite extends TestSuite {
 
-    private _SPREADSHEET: GoogleAppsScript.Spreadsheet.Spreadsheet;
-    private _WORKSHEET_NAME: string;
-    private _WORKSHEET: GoogleAppsScript.Spreadsheet.Sheet;
+    private WORKSHEET_NAME: string;
 
     constructor() {
-        this._SPREADSHEET = SpreadsheetApp.getActive();
-        this._WORKSHEET_NAME = '__test';
+        super();
+        this.WORKSHEET_NAME = '__test';
     }
 
-    deleteSheet() {
-        const sheet = this._SPREADSHEET.getSheetByName(this._WORKSHEET_NAME);
-        if (sheet)
-            this._SPREADSHEET.deleteSheet(sheet);
+    writeValues(values: Object[][], start?: string) {
+        return this.writeSheetValues(this.WORKSHEET_NAME, values, start);
     }
 
-    createSheet() {
-        this._WORKSHEET = this._SPREADSHEET.insertSheet(this._WORKSHEET_NAME);
-    }
-
-    clearSheet() {
-        this._WORKSHEET = this._SPREADSHEET.getSheetByName(this._WORKSHEET_NAME);
-
-        if (!this._WORKSHEET)
-            this._WORKSHEET = this._SPREADSHEET.insertSheet(this._WORKSHEET_NAME);
-        else
-            this._WORKSHEET.clear();
-    }
-
-    writeValues(values, start?) {
-        if (!values || !values.length)
-            return;
-
-        const range = this._WORKSHEET
-            .getRange(start || "A1")
-            .offset(0, 0, values.length, values[0].length);
-
-        range.setValues(values);
-
-        return range;
-    }
-
-    writeFormulasR1C1(values, start?) {
-        if (!values || !values.length)
-            return;
-
-        const range = this._WORKSHEET
-            .getRange(start || "A1")
-            .offset(0, 0, values.length, values[0].length);
-
-        range.setFormulasR1C1(values);
-
-        return range;
+    writeFormulasR1C1(values: string[][], start?: string) {
+        return super.writeSheetFormulasR1C1(this.WORKSHEET_NAME, values, start);
     }
 
     beforeTest_() {
-        this.clearSheet();
+        this.clear(this.WORKSHEET_NAME);
     }
 
     afterTest_() {
-        // this.deleteSheet();
+        
     }
 
     test_blank_sheet() {
         const options = {
-            sheetName: this._WORKSHEET_NAME,
+            sheetName: this.WORKSHEET_NAME,
             fields: [
                 { name: "A" },
                 { name: "B" }
@@ -77,7 +38,7 @@ class RepositoryTestSuite implements TestSuite {
 
     test_blank_sheet_no_header() {
         const options = {
-            sheetName: this._WORKSHEET_NAME,
+            sheetName: this.WORKSHEET_NAME,
             header: false,
             fields: [
                 { name: "A" },
@@ -96,7 +57,7 @@ class RepositoryTestSuite implements TestSuite {
             [2, "word2"]
         ], "B4");
 
-        const table = Repository.create({ sheetName: this._WORKSHEET_NAME, offsetA1: "B4" });
+        const table = Repository.create({ sheetName: this.WORKSHEET_NAME, offsetA1: "B4" });
         const items = table.findAll();
         Assert.assertObjectEquals([{ a: 1, b: "word1" }, { a: 2, b: "word2" }], items);
     }
@@ -108,7 +69,7 @@ class RepositoryTestSuite implements TestSuite {
         ], "B4");
 
         const table = Repository.create({
-            sheetName: this._WORKSHEET_NAME,
+            sheetName: this.WORKSHEET_NAME,
             offsetA1: "B4",
             header: false,
             fields: [
@@ -127,7 +88,7 @@ class RepositoryTestSuite implements TestSuite {
             [2, "word2"]
         ]);
 
-        const table = Repository.create({ sheetName: this._WORKSHEET_NAME });
+        const table = Repository.create({ sheetName: this.WORKSHEET_NAME });
         const items = table.findAll();
         Assert.assertObjectEquals([{ a: 1, b: "word1" }, { a: 2, b: "word2" }], items);
     }
@@ -139,7 +100,7 @@ class RepositoryTestSuite implements TestSuite {
         ]);
 
         const table = Repository.create({
-            sheetName: this._WORKSHEET_NAME,
+            sheetName: this.WORKSHEET_NAME,
             header: false,
             fields: [
                 { name: "A" },
@@ -158,7 +119,7 @@ class RepositoryTestSuite implements TestSuite {
         ]);
 
         const options = {
-            sheetName: this._WORKSHEET_NAME,
+            sheetName: this.WORKSHEET_NAME,
             fields: [
                 { name: "A" },
                 { name: "B" }
@@ -179,7 +140,7 @@ class RepositoryTestSuite implements TestSuite {
         ]);
 
         const options = {
-            sheetName: this._WORKSHEET_NAME,
+            sheetName: this.WORKSHEET_NAME,
             header: false,
             fields: [
                 { name: "A" },
@@ -202,7 +163,7 @@ class RepositoryTestSuite implements TestSuite {
         ]);
 
         const options = {
-            sheetName: this._WORKSHEET_NAME,
+            sheetName: this.WORKSHEET_NAME,
             fields: [
                 { name: "B", columnName: "b" },
                 { name: "A", columnName: "a" }
@@ -221,7 +182,7 @@ class RepositoryTestSuite implements TestSuite {
         ]
         const range = this.writeValues(values);
 
-        const table = Repository.create({ sheetName: this._WORKSHEET_NAME });
+        const table = Repository.create({ sheetName: this.WORKSHEET_NAME });
         const items = table.findAll();
         table.commit();
         Assert.assertObjectEquals(values, range.getValues());
@@ -235,7 +196,7 @@ class RepositoryTestSuite implements TestSuite {
         ]
         const range = this.writeValues(values);
 
-        const table = Repository.create({ sheetName: this._WORKSHEET_NAME });
+        const table = Repository.create({ sheetName: this.WORKSHEET_NAME });
         const items = table.findAll();
         const item1 = items[0];
         item1.a = 10;
@@ -251,7 +212,7 @@ class RepositoryTestSuite implements TestSuite {
         ]
         const range = this.writeValues(values);
 
-        const table = Repository.create({ sheetName: this._WORKSHEET_NAME });
+        const table = Repository.create({ sheetName: this.WORKSHEET_NAME });
         const items = table.findAll();
         const item2 = items[1];
         item2.a = 10;
@@ -274,7 +235,7 @@ class RepositoryTestSuite implements TestSuite {
         ]
         const range = this.writeValues(values);
 
-        const table = Repository.create({ sheetName: this._WORKSHEET_NAME });
+        const table = Repository.create({ sheetName: this.WORKSHEET_NAME });
         const items = table.findAll();
         const item2 = items[1];
         item2.a = 10;
@@ -299,7 +260,7 @@ class RepositoryTestSuite implements TestSuite {
         ]
         const range = this.writeValues(values);
 
-        const table = Repository.create({ sheetName: this._WORKSHEET_NAME });
+        const table = Repository.create({ sheetName: this.WORKSHEET_NAME });
         const item3 = {
             a: 3,
             b: "word3"
@@ -332,7 +293,7 @@ class RepositoryTestSuite implements TestSuite {
         const formulasRange = this.writeFormulasR1C1(formulas, "C2")
 
         const table = Repository.create({
-            sheetName: this._WORKSHEET_NAME,
+            sheetName: this.WORKSHEET_NAME,
             fields: [
                 { name: "A" },
                 { name: "B" },
@@ -375,7 +336,7 @@ class RepositoryTestSuite implements TestSuite {
         const range = this.writeValues(values);
 
         const table = Repository.create({
-            sheetName: this._WORKSHEET_NAME,
+            sheetName: this.WORKSHEET_NAME,
             fields: [
                 { name: "a", readonly: true },
                 { name: "b" }

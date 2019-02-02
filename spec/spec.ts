@@ -91,3 +91,21 @@ Assert.assertObjectEquals = function () {
     }
     Assert.GsUnit.assert(failureMessage, isEqual, 'Expected ' + Assert.GsUnit.displayStringForValue(var1) + ' but was ' + Assert.GsUnit.displayStringForValue(var2));
 }
+
+Assert.failure = function () {
+    Assert.GsUnit.validateArguments(1, arguments);
+    var var1 = Assert.GsUnit.nonCommentArg(1, 1, arguments);
+    var failureMessage = Assert.GsUnit.commentArg(1, arguments) ? Assert.GsUnit.commentArg(1, arguments) : '';
+
+    let result;
+    let exceptionAccuired = false;
+    try {
+        result = var1();
+    }
+    catch{
+        exceptionAccuired = true;
+    }
+    
+    if (!exceptionAccuired)
+        Assert.GsUnit.assert(failureMessage, false, 'Expected failure but result was ' + Assert.GsUnit.displayStringForValue(result));
+}

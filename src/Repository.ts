@@ -39,6 +39,30 @@ class Repository {
         return this.items();
     }
 
+    find(filter: Filter) {
+        return this.items().filter(i => this.applyFilter(i, filter));
+    }
+
+    findOne(filter: Filter) {
+        const findResult = this.find(filter);
+
+        if (findResult.length > 1)
+            throw new Error(`The result contains more than 1 element (${findResult.length})`);
+
+        return findResult[0];
+    }
+
+    private applyFilter(entity: Entity, filter: Filter) {
+        let apply = true;
+        for (let field in filter) {
+            if (filter[field] != entity[field]) {
+                apply = false;
+                break;
+            }
+        }
+        return apply;
+    }
+
     save(obj: Entity) {
         this._cache.save(obj);
     }

@@ -8,7 +8,7 @@
 - [x] readonly fields
 - [ ] type ?
 - [x] default value
-- [ ] find
+- [x] find
 - [ ] indexing
 - [x] multi-table model
 
@@ -17,7 +17,6 @@
 - [ ] delete
 - [ ] joins
 - [ ] cascade
-
 
 ## Release 0.3.0+
 

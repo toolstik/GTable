@@ -4,7 +4,7 @@ const Runner: any = GSTestRunner;
 const Assert: any = GSUnit;
 
 function test() {
-    return new RepositoryTestSuite().test_save_update_readonly();
+    return new SessionTestSuite().test_mapping_auto();
 }
 
 function runSuite(suite: TestSuite, test?: string) {
@@ -75,6 +75,14 @@ Assert.assertObjectEquals = function () {
             // {
             // 	Assert.GsUnit.assert(failureMessage, false, 'Expected keys "' + expectedKeys + '" but found "' + actualKeys + '"');
             // }
+            if (typeOfVar1 == 'Array') {
+                if (var1.length != var2.length) {
+                    Assert.GsUnit.assert(
+                        failureMessage, false, 'Expected array of length ' + var1.length + ' but was ' + var2.length
+                    );
+                }
+            }
+
             for (var i in var1) {
                 Assert.assertObjectEquals(failureMessage + ' found nested ' + typeOfVar1 + '@' + i + '\n', var1[i], var2[i]);
             }

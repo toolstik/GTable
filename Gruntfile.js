@@ -35,10 +35,26 @@ module.exports = function (grunt) {
 
     grunt.registerTask('exec:clasp_run_test', ['exec:clasp_run_repo_test', 'exec:clasp_run_session_test']);
 
-    grunt.registerTask('test', [
+    grunt.registerTask('push', [
         'exec:clear_dist',
         'build:test',
-        'exec:clasp_push',
+        'exec:clasp_push'
+    ]);
+
+    grunt.registerTask('test:all', [
+        'push',
         'exec:clasp_run_test'
     ]);
+
+    grunt.registerTask('test:repo', [
+        'push',
+        'exec:clasp_run_repo_test'
+    ]);
+
+    grunt.registerTask('test:session', [
+        'push',
+        'exec:clasp_run_session_test'
+    ]);
+
+
 };

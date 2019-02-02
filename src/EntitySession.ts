@@ -4,12 +4,8 @@ class EntitySession {
     private _options: SessionOptions;
 
     constructor(options?: SessionOptions) {
-        this._options = options || new SessionOptions();
+        this._options = new SessionOptions(options);
         this._types = {};
-
-        // for (let type in options.entities) {
-        //     this._types[type] = new Repository(this._options.entities[type]);
-        // }
     }
 
     getRepository(name: string) {

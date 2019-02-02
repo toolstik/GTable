@@ -8,7 +8,7 @@
 - [ ] default value
 - [ ] find
 - [ ] indexing
-- [ ] multi-table model
+- [x] multi-table model
 - [ ] joins
 - [ ] cascade
 - [ ] delete

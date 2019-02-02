@@ -7,7 +7,18 @@ class SessionOptions {
         if (options)
             Object.assign(this, options);
 
-        this.entities = this.entities || SessionOptions.defaultEntities();
+        if (this.entities) {
+            for (let entity in this.entities) {
+                const opts = this.entities[entity];
+
+                if (opts.sheet == null && !opts.sheetName)
+                    opts.sheetName = entity;
+
+                this.entities[entity] = opts;
+            }
+        }
+        else
+            this.entities = SessionOptions.defaultEntities();
     }
 
     private static defaultEntities() {

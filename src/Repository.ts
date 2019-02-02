@@ -8,7 +8,6 @@ class Repository {
     constructor(options: Options) {
         this._options = new Options(options);
         this._table = new Table(options);
-        this._cache = new CacheL2();
     }
 
     private mapper() {
@@ -25,69 +24,64 @@ class Repository {
         return new Repository(options);
     }
 
-    private items() {
-        if (!this._cache.items) {
+    private cache() {
+        if (this._cache) return this._cache;
+        this._cache = new CacheL2();
+        return this._cache;
+    }
+
+    private initCache() {
+        const cache = this.cache();
+
+        if (!cache.items) {
             const values = this._table.values();
             const mapper = this.mapper();
             const items = values.map((row, i) => mapper.mapToObject(row, i));
-            this._cache.setItems(items);
+            cache.setItems(items);
         }
-        return Object.values(this._cache.items);
+
+        return cache;
     }
 
     findAll() {
-        return this.items();
+        return this.initCache().findAll();
     }
 
     find(filter: Filter) {
-        return this.items().filter(i => this.applyFilter(i, filter));
+        return this.initCache().find(filter);
     }
 
     findOne(filter: Filter) {
-        const findResult = this.find(filter);
-
-        if (findResult.length > 1)
-            throw new Error(`The result contains more than 1 element (${findResult.length})`);
-
-        return findResult[0];
-    }
-
-    private applyFilter(entity: Entity, filter: Filter) {
-        let apply = true;
-        for (let field in filter) {
-            if (filter[field] != entity[field]) {
-                apply = false;
-                break;
-            }
-        }
-        return apply;
+        return this.initCache().findOne(filter);
     }
 
     save(obj: Entity) {
-        this._cache.save(obj);
+        this.cache().save(obj);
     }
 
     commit() {
+        const cache = this.cache();
 
-        if (!this._cache.hasChanges) return;
+        if (!cache.hasChanges) return;
 
         const mapper = this.mapper();
+        
 
-        if (this._cache.isInsertOnly()) {
+        if (cache.isInsertOnly()) {
 
-            const newRows = this._cache.inserts.map(i => mapper.mapToRow(i).value);
+            const newRows = cache.inserts.map(i => mapper.mapToRow(i).value);
             this._table.append(newRows, []);
-            this._cache.resetChanges();
+            cache.resetChanges();
             return;
         }
 
         const upsertRows = this._table.values();
         const upsertValues: Object[][] = []
 
-        for (let i = this._cache.minChangedIndex;
-            i <= Math.min(this._cache.maxChangedIndex, upsertRows.length - 1); i++) {
+        for (let i = cache.minChangedIndex;
+            i <= Math.min(cache.maxChangedIndex, upsertRows.length - 1); i++) {
             const row = upsertRows[i];
-            const update = this._cache.updates[i];
+            const update = cache.updates.get(i);
             if (update) {
                 const mapResult = mapper.mapToRow(update, row);
                 const newRow = mapResult.changed ? mapResult.value : row;
@@ -96,12 +90,12 @@ class Repository {
             }
         }
 
-        const inserts = this._cache.inserts.map(i => mapper.mapToRow(i).value);
+        const inserts = cache.inserts.map(i => mapper.mapToRow(i).value);
         upsertValues.concat(inserts);
 
         this._table
-            .upsert(upsertValues, this._cache.minChangedIndex, []);
-        this._cache.resetChanges();
+            .upsert(upsertValues, cache.minChangedIndex, []);
+        cache.resetChanges();
     }
 
 }

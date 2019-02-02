@@ -2,6 +2,8 @@ class Options {
 
     header?: boolean;
     offsetA1?: string;
+    index?: boolean;
+
     sheetName?: string;
     sheet?: GoogleAppsScript.Spreadsheet.Sheet;
 
@@ -13,6 +15,7 @@ class Options {
 
         this.header = this.header != null ? this.header : true;
         this.offsetA1 = this.offsetA1 || "A1";
+        this.index = this.index != null ? this.index : true;
 
         if (this.sheetName == null) {
             if (this.sheet == null)

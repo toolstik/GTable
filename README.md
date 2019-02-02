@@ -15,6 +15,7 @@
 ## Release 0.2.0
 
 - [ ] delete
+- [ ] session id check on update/delete
 - [ ] joins
 - [ ] cascade
 
@@ -24,3 +25,4 @@
 - [ ] formula A1
 - [ ] default value as function
 - [ ] transactions
+- [ ] compound indexes ?

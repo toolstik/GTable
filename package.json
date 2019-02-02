@@ -1,6 +1,6 @@
 {
   "name": "gtable",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "\"An ORM for Google Apps scripts\"",
   "repository": {
     "type": "git",

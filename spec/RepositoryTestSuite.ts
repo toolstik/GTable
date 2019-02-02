@@ -20,7 +20,7 @@ class RepositoryTestSuite extends TestSuite {
     }
 
     afterTest_() {
-        
+
     }
 
     test_blank_sheet() {
@@ -355,6 +355,29 @@ class RepositoryTestSuite extends TestSuite {
             [2, "new_word"]
         ]
         Assert.assertObjectEquals(expected, range.getValues());
+    }
+
+    test_default_value() {
+        this.writeValues([
+            ["a", "b"],
+            [1, "word1"],
+            [2, null],
+            [3, ""]
+        ]);
+
+        const table = Repository.create({
+            sheetName: this.WORKSHEET_NAME,
+            fields: [
+                {},
+                { default: "defaultvalue" }
+            ]
+        });
+        const items = table.findAll();
+        Assert.assertObjectEquals([
+            { a: 1, b: "word1" },
+            { a: 2, b: "defaultvalue" },
+            { a: 3, b: "defaultvalue" }
+        ], items);
     }
 
 }

@@ -1,17 +1,27 @@
 # Features
 
+## Release 0.1.0
+
 - [x] auto-mapping
 - [x] save
 - [x] formulas
 - [x] readonly fields
 - [ ] type ?
-- [ ] default value
+- [x] default value
 - [ ] find
 - [ ] indexing
 - [x] multi-table model
+
+## Release 0.2.0
+
+- [ ] delete
 - [ ] joins
 - [ ] cascade
-- [ ] delete
-- [ ] transactions
-- [ ] formula functions
+
+
+## Release 0.3.0+
+
+- [ ] formula as functions
 - [ ] formula A1
+- [ ] default value as function
+- [ ] transactions

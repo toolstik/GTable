@@ -4,4 +4,5 @@ class FieldOptions {
     columnName?: string;
     formula?: string;
     readonly?: boolean;
+    default?: any;
 }

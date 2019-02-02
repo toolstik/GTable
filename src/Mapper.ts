@@ -66,7 +66,11 @@ class Mapper {
     }
 
     private mapFieldToObject(field: FieldOptions, row: Object[], target: Entity) {
-        const newValue = row[field.columnIndex];
+        let newValue = row[field.columnIndex];
+
+        if (newValue == "" && field.default != null)
+            newValue = field.default;
+
         if (target[field.name] != newValue) {
             target[field.name] = newValue;
             return true;
@@ -78,7 +82,7 @@ class Mapper {
         if (field.readonly)
             return false;
 
-        const newValue = obj[field.name];
+        const newValue = field.formula ? field.formula : obj[field.name];
         if (target[field.columnIndex] != newValue) {
             target[field.columnIndex] = newValue;
             return true;

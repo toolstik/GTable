@@ -13,9 +13,7 @@ class CacheL2 {
     private deleteCount: number;
 
     private _indexes: {
-        [field: string]: {
-            [value: string]: number[]
-        }
+        [field: string]: Index
     };
 
     constructor() {
@@ -44,20 +42,29 @@ class CacheL2 {
         return this.insertCount > 0 || this.updateCount > 0 || this.deleteCount > 0;
     }
 
-    private updateIndexes(item: Entity) {
+    private indexes() {
         if (!this._indexes)
             this._indexes = {};
+        return this._indexes;
+    }
 
-        const indexes = this._indexes;
-
+    private updateIndexes(item: Entity) {
         for (let field in item) {
-            if (!indexes[field])
-                indexes[field] = {};
-
-            const fieldIndex = indexes[field];
-
-
+            this.updateIndex(field, item);
         }
+    }
+
+    private updateIndex(field: string, newValue: Entity, oldValue?: Entity) {
+        const indexes = this.indexes();
+        const fieldIndex = indexes[field] || (indexes[field] = new Index());
+
+        if (oldValue)
+            fieldIndex.delete(oldValue[field], oldValue);
+
+        if (newValue)
+            fieldIndex.update(newValue[field], newValue);
+
+        return fieldIndex;
     }
 
     setItems(items: Entity[]) {
@@ -67,14 +74,13 @@ class CacheL2 {
 
         for (let i of items) {
             this.items.update(i);
+            this.updateIndexes(i);
 
             if (this.increment == null)
                 this.increment = i.__index;
             else
                 this.increment = Math.max(this.increment, i.__index);
         }
-
-        Logger.log(this.items);
     }
 
     private updateChangedIndex(i: number) {
@@ -125,6 +131,20 @@ class CacheL2 {
     }
 
     find(filter: Filter) {
+        if (filter == null) return [];
+
+        //if indexes enabled
+        if (true) {
+            const indexes = this.indexes();
+
+            return Object.keys(filter)
+                .map(f => indexes[f] ? indexes[f].get(filter[f]) : new EntityCollection())
+                .reduce((res, cur) => {
+                    return EntityCollection.intersect(res, cur);
+                })
+                .values();
+        }
+
         return this.values().filter(i => this.applyFilter(i, filter));
     }
 

@@ -4,7 +4,7 @@ const Runner: any = GSTestRunner;
 const Assert: any = GSUnit;
 
 function test() {
-    return new RepositoryTestSuite().test_blank_sheet();
+    return new RepositoryTestSuite().test_findOne();
 }
 
 function runSuite(suite: TestSuite, test?: string) {

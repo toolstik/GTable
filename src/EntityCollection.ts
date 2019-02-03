@@ -24,4 +24,17 @@ class EntityCollection {
     delete(index: number) {
         delete this._items[index];
     }
+
+    static intersect(x: EntityCollection, y: EntityCollection) {
+        if (x == null || y == null) return null;
+
+        const result = new EntityCollection();
+
+        for (let item of x.values()) {
+            if (y.get(item.__index))
+                result.update(item);
+        }
+
+        return result;
+    }
 }

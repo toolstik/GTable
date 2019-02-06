@@ -22,7 +22,7 @@ abstract class TestSuite {
 
     writeSheetValues( sheetName: string, values: Object[][], start?: string) {
         if (!values || !values.length)
-            return;
+            return null;
 
         const range = this.getSheet(sheetName)
             .getRange(start || "A1")
@@ -35,7 +35,7 @@ abstract class TestSuite {
 
     writeSheetFormulasR1C1(sheetName: string, values: string[][], start?: string) {
         if (!values || !values.length)
-            return;
+            return null;
 
         const range = this.getSheet(sheetName)
             .getRange(start || "A1")

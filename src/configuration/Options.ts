@@ -2,6 +2,10 @@ class Options {
 
     header?: boolean;
     offsetA1?: string;
+
+    /**
+     * Field indexing toggle
+     */
     index?: boolean;
 
     sheetName?: string;

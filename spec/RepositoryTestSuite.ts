@@ -12,7 +12,7 @@ class RepositoryTestSuite extends TestSuite {
     }
 
     writeFormulasR1C1(values: string[][], start?: string) {
-        return super.writeSheetFormulasR1C1(this.WORKSHEET_NAME, values, start);
+        return this.writeSheetFormulasR1C1(this.WORKSHEET_NAME, values, start);
     }
 
     beforeTest_() {
@@ -388,13 +388,41 @@ class RepositoryTestSuite extends TestSuite {
             [3, "word1"]
         ]);
 
-        const table = Repository.create({ sheetName: this.WORKSHEET_NAME });
+        const table = Repository.create({ sheetName: this.WORKSHEET_NAME, index: false });
         Assert.assertObjectEquals([{ a: 1, b: "word1" }, { a: 3, b: "word1" }], table.find({ b: "word1" }));
         Assert.assertObjectEquals([{ a: 1, b: "word1" }], table.find({ a: 1, b: "word1" }));
         Assert.assertObjectEquals([{ a: 2, b: "word2" }], table.find({ a: 2 }));
     }
 
     test_findOne() {
+        this.writeValues([
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"],
+            [3, "word1"]
+        ]);
+
+        const table = Repository.create({ sheetName: this.WORKSHEET_NAME, index: false });
+        Assert.failure(() => table.findOne({ b: "word1" }));
+        Assert.assertObjectEquals({ a: 1, b: "word1" }, table.findOne({ a: 1, b: "word1" }));
+        Assert.assertObjectEquals({ a: 2, b: "word2" }, table.findOne({ a: 2 }));
+    }
+
+    test_find_with_index() {
+        this.writeValues([
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"],
+            [3, "word1"]
+        ]);
+
+        const table = Repository.create({ sheetName: this.WORKSHEET_NAME });
+        Assert.assertObjectEquals([{ a: 1, b: "word1" }, { a: 3, b: "word1" }], table.find({ b: "word1" }));
+        Assert.assertObjectEquals([{ a: 1, b: "word1" }], table.find({ a: 1, b: "word1" }));
+        Assert.assertObjectEquals([{ a: 2, b: "word2" }], table.find({ a: 2 }));
+    }
+
+    test_findOne_with_index() {
         this.writeValues([
             ["a", "b"],
             [1, "word1"],

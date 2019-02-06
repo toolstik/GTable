@@ -16,7 +16,7 @@ class CacheL2 {
         [field: string]: Index
     };
 
-    constructor() {
+    constructor(private options: Options) {
         this.increment = -1;
         this.resetChanges();
     }
@@ -42,19 +42,30 @@ class CacheL2 {
         return this.insertCount > 0 || this.updateCount > 0 || this.deleteCount > 0;
     }
 
+    private indexesEnabled() {
+        return this.options.index == true;
+    }
+
     private indexes() {
+        if (!this.indexesEnabled())
+            return null;
         if (!this._indexes)
             this._indexes = {};
         return this._indexes;
     }
 
     private updateIndexes(item: Entity) {
+        if (!this.indexesEnabled())
+            return;
         for (let field in item) {
             this.updateIndex(field, item);
         }
     }
 
     private updateIndex(field: string, newValue: Entity, oldValue?: Entity) {
+        if (!this.indexesEnabled())
+            return null;
+            
         const indexes = this.indexes();
         const fieldIndex = indexes[field] || (indexes[field] = new Index());
 
@@ -133,8 +144,7 @@ class CacheL2 {
     find(filter: Filter) {
         if (filter == null) return [];
 
-        //if indexes enabled
-        if (true) {
+        if (this.indexesEnabled()) {
             const indexes = this.indexes();
 
             return Object.keys(filter)

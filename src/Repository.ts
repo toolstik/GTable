@@ -26,7 +26,7 @@ class Repository {
 
     private cache() {
         if (this._cache) return this._cache;
-        this._cache = new CacheL2();
+        this._cache = new CacheL2(this._options);
         return this._cache;
     }
 
@@ -65,7 +65,7 @@ class Repository {
         if (!cache.hasChanges) return;
 
         const mapper = this.mapper();
-        
+
 
         if (cache.isInsertOnly()) {
 

@@ -6,10 +6,10 @@
 - [x] save
 - [x] formulas
 - [x] readonly fields
-- [ ] type ?
+- [ ] type/convert or read/write functions ?
 - [x] default value
 - [x] find
-- [ ] indexing
+- [x] indexing
 - [x] multi-table model
 
 ## Release 0.2.0

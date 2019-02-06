@@ -13,7 +13,7 @@ function runSuite(suite: TestSuite, test?: string) {
     };
 
     const result = test
-        ? Runner.runTest(suite, suite.constructor.name)
+        ? Runner.runTest(suite, test)
         : Runner.runSuite(suite, suite.constructor.name, options);
     return result;
 }

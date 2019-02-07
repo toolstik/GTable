@@ -79,3 +79,4 @@ class SessionTestSuite extends TestSuite {
     }
 
 }
+

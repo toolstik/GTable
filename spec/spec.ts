@@ -26,6 +26,10 @@ function runSessionTests() {
     return runSuite(new SessionTestSuite());
 }
 
+function runBenchmarks() {
+    return runSuite(new GibernateBenchmark());
+}
+
 function runFeatureTest(testName: string) {
     return runSuite(new RepositoryTestSuite(), testName);
 }

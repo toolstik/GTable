@@ -1,3 +1,6 @@
+/**
+ * Provides methods to manipulate entities of a single type binded to a sheet
+ */
 class Repository {
     private _options: Options;
 
@@ -43,14 +46,25 @@ class Repository {
         return cache;
     }
 
+    /**
+     * Find all objects
+     */
     findAll() {
         return this.initCache().findAll();
     }
 
+    /**
+     * Find all objects 
+     */
     find(filter: Filter) {
         return this.initCache().find(filter);
     }
 
+    /**
+     * Find all objects
+     * 
+     * @param filter search criteria
+     */
     findOne(filter: Filter) {
         return this.initCache().findOne(filter);
     }

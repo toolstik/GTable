@@ -4,6 +4,11 @@ class Options {
     offsetA1?: string;
 
     /**
+     * Set to 'true' if sure that first row and first column of dataset do not contain empty cells. Lazy scan strategy is much faster than greedy one. Default is false
+     */
+    rangeScanLazy?: boolean;
+
+    /**
      * Field indexing toggle
      */
     index?: boolean;
@@ -20,6 +25,7 @@ class Options {
         this.header = this.header != null ? this.header : true;
         this.offsetA1 = this.offsetA1 || "A1";
         this.index = this.index != null ? this.index : true;
+        this.rangeScanLazy = this.rangeScanLazy != null ? this.rangeScanLazy : false;
 
         if (this.sheetName == null) {
             if (this.sheet == null)

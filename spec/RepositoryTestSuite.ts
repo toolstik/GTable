@@ -50,7 +50,25 @@ class RepositoryTestSuite extends TestSuite {
         Assert.assertObjectEquals([], items);
     }
 
+    test_blank_sheet_no_header_lazy() {
+        const options: Options = {
+            sheetName: this.WORKSHEET_NAME,
+            header: false,
+            rangeScanLazy: true,
+            fields: [
+                { name: "A" },
+                { name: "B" }
+            ]
+        };
+        const table = Repository.create(options);
+        const items = table.findAll();
+        Assert.assertObjectEquals([], items);
+    }
+
     test_mapping_auto_with_offset() {
+        // some values in first column
+        this.writeValues([[1], [2], [3], [4]]);
+
         this.writeValues([
             ["a", "b"],
             [1, "word1"],
@@ -63,6 +81,9 @@ class RepositoryTestSuite extends TestSuite {
     }
 
     test_mapping_auto_with_offset_no_header() {
+        // some values in first column
+        this.writeValues([[1], [2], [3], [4]]);
+
         this.writeValues([
             [1, "word1"],
             [2, "word2"]
@@ -72,6 +93,48 @@ class RepositoryTestSuite extends TestSuite {
             sheetName: this.WORKSHEET_NAME,
             offsetA1: "B4",
             header: false,
+            fields: [
+                { name: "A" },
+                { name: "B" }
+            ]
+        });
+        const items = table.findAll();
+        Assert.assertObjectEquals([{ A: 1, B: "word1" }, { A: 2, B: "word2" }], items);
+    }
+
+    test_mapping_auto_with_offset_lazy() {
+        // some values in first column
+        this.writeValues([[1], [2], [3], [4]]);
+
+        this.writeValues([
+            ["a", "b"],
+            [1, "word1"],
+            [2, "word2"]
+        ], "B4");
+
+        const table = Repository.create({
+            sheetName: this.WORKSHEET_NAME,
+            offsetA1: "B4",
+            rangeScanLazy: true
+        });
+        const items = table.findAll();
+        Assert.assertObjectEquals([{ a: 1, b: "word1" }, { a: 2, b: "word2" }], items);
+    }
+
+    test_mapping_auto_with_offset_no_header_lazy() {
+        // some values in first column
+        this.writeValues([[1], [2], [3], [4]]);
+
+        this.writeValues([
+            [1, "word1"],
+            [2, "word2"]
+        ], "B4");
+
+        const table = Repository.create({
+            sheetName: this.WORKSHEET_NAME,
+            offsetA1: "B4",
+            header: false,
+            rangeScanLazy: true,
             fields: [
                 { name: "A" },
                 { name: "B" }

@@ -14,10 +14,7 @@ class Table {
         this._options = new Options(options);
     }
 
-    private storageMeta() {
-        if (this._storageMeta !== undefined)
-            return this._storageMeta;
-
+    private getDataRangeGreedy() {
         const offsetRange = this._options.sheet.getRange(this._options.offsetA1);
         const sheetDataRange = this._options.sheet.getDataRange();
         const firstRow = offsetRange.getRow();
@@ -31,19 +28,78 @@ class Table {
         if (numRows < 1 || numColumns < 1
             //empty sheet case
             || (numRows == 1 && numColumns == 1 && offsetRange.getCell(1, 1).isBlank())) {
-            this._storageMeta = {
+            return {
                 dataRange: null,
                 columnsCount: 0,
                 rowsCount: 0
             };
-            return this._storageMeta;
         }
 
-        this._storageMeta = {
+        return {
             dataRange: offsetRange.offset(0, 0, numRows, numColumns),
             columnsCount: numColumns,
             rowsCount: numRows
-        };
+        }
+    }
+
+    private getDataRangeLazy() {
+        const sheet = this._options.sheet;
+        const offsetRange = sheet.getRange(this._options.offsetA1);
+
+        function getLastRow(startRow: number, startColumn: number) {
+            var rowIdx = startRow + 1;
+
+            while (sheet.getRange(rowIdx, startColumn).getValue() != "") {
+                rowIdx += 1;
+            }
+
+            return rowIdx - 1;
+        }
+
+        function getLastColumn(startRow: number, startColumn: number) {
+            var columnIdx = startColumn + 1;
+
+            while (sheet.getRange(startRow, columnIdx).getValue() != "") {
+                columnIdx += 1;
+            }
+
+            return columnIdx - 1;
+        }
+
+        const firstRow = offsetRange.getRow();
+        const firstColumn = offsetRange.getColumn();
+        const lastRow = getLastRow(firstRow, firstColumn);
+        const lastColumn = getLastColumn(firstRow, firstColumn);
+
+        const numRows = lastRow - firstRow + 1;
+        const numColumns = lastColumn - firstColumn + 1;
+
+        const sheetDataRange = this._options.sheet
+            .getRange(firstRow, firstColumn, numRows, numColumns);
+
+        if (numRows < 1 || numColumns < 1
+            //empty sheet case
+            || (numRows == 1 && numColumns == 1 && sheetDataRange.getCell(1, 1).isBlank())) {
+            return {
+                dataRange: null,
+                columnsCount: 0,
+                rowsCount: 0
+            };
+        }
+        return {
+            dataRange: offsetRange.offset(0, 0, numRows, numColumns),
+            columnsCount: numColumns,
+            rowsCount: numRows
+        }
+    }
+
+    private storageMeta() {
+        if (this._storageMeta !== undefined)
+            return this._storageMeta;
+
+        this._storageMeta = this._options.rangeScanLazy
+            ? this.getDataRangeLazy()
+            : this.getDataRangeGreedy();
 
         return this._storageMeta;
     }
@@ -85,7 +141,7 @@ class Table {
 
         for (let i = 0; i < formulaSections.length; i++) {
             const data = formulaSections[i];
-            if(!data) continue;
+            if (!data) continue;
             range.offset(0, i, range.getNumRows(), data[0].length).setFormulasR1C1(data);
         }
     }

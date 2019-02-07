@@ -2,17 +2,7 @@ var ts2gas = require('ts2gas');
 
 module.exports = function (grunt) {
 
-    var ts2gasConfig = {
-        "target": "es5",
-        "lib": [
-            "es2015",
-            "es5",
-            "es6",
-            "es2017"
-        ],
-        "strict": true,
-        "inlineSourceMap": true,
-    };
+    var ts2gasConfig = grunt.file.readJSON('tsconfig.json').compilerOptions;
 
     function trinspileTs(tsFile) {
         var tsBody = grunt.file.read(tsFile);
@@ -26,12 +16,17 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         concat: {
+            options: {
+                stripBanners: true,
+                banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+                    '<%= grunt.template.today("yyyy-mm-dd HH:MM:ss") %> */\n',
+            },
             src: {
                 src: 'src/**/*.ts',
                 dest: 'dist/gibernate.ts'
             },
             spec: {
-                src: ['spec/spec.ts', 'spec/TestSuite.ts', 'spec/**/*.ts'],
+                src: ['spec/spec.ts', 'spec/TestSuite.ts', 'spec/**/*.ts', 'spec/**/*.js'],
                 dest: 'dist/spec.ts'
             }
         },
@@ -46,6 +41,7 @@ module.exports = function (grunt) {
             clasp_push: "clasp push -f",
             clasp_run_repo_test: "clasp run runRepositoryTests",
             clasp_run_session_test: "clasp run runSessionTests",
+            clasp_run_benchmarks: "clasp run runBenchmarks",
             clear_dist: "rm -r -f dist"
         }
     });
@@ -67,7 +63,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('exec:clasp_run_test', ['exec:clasp_run_repo_test', 'exec:clasp_run_session_test']);
 
-    grunt.registerTask('push', [
+    grunt.registerTask('push', 'Push content of `dist` directory to Google', [
         'exec:clear_dist',
         'build:test',
         'exec:clasp_push'
@@ -86,6 +82,11 @@ module.exports = function (grunt) {
     grunt.registerTask('test:session', [
         'push',
         'exec:clasp_run_session_test'
+    ]);
+
+    grunt.registerTask('benchmark', [
+        'push',
+        'exec:clasp_run_benchmarks'
     ]);
 
 

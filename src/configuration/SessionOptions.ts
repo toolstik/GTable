@@ -1,4 +1,6 @@
 class SessionOptions {
+
+    defaults?: Options;
     entities?: {
         [entity: string]: Options;
     };
@@ -7,6 +9,9 @@ class SessionOptions {
         if (options)
             Object.assign(this, options);
 
+        this.defaults = this.defaults || {};
+        this.defaults.spreadsheet = this.defaults.spreadsheet || SpreadsheetApp.getActive();
+
         if (this.entities) {
             for (let entity in this.entities) {
                 const opts = this.entities[entity];
@@ -14,27 +19,33 @@ class SessionOptions {
                 if (opts.sheet == null && !opts.sheetName)
                     opts.sheetName = entity;
 
+                opts.spreadsheet = opts.spreadsheet || this.defaults.spreadsheet;
+                opts.rangeScanLazy = opts.rangeScanLazy == null
+                    ? this.defaults.rangeScanLazy
+                    : opts.rangeScanLazy;
+                opts.index = opts.index == null ? this.defaults.index : opts.index;
+
                 this.entities[entity] = opts;
             }
         }
-        else
-            this.entities = SessionOptions.defaultEntities();
     }
 
-    private static defaultEntities() {
-        const spreadsheet = SpreadsheetApp.getActive();
-        const sheets = spreadsheet.getSheets();
+    static getEntityOptions(options: SessionOptions, name: string) {
+        if (options.entities) {
+            const defined = options.entities[name];
 
-        let result: { [entity: string]: Options; } = {};
+            if (defined)
+                return defined;
+        }
+        
+        const sheet = options.defaults.spreadsheet.getSheetByName(name);
 
-        sheets.forEach(s => {
-            const sheetName = s.getName();
-            result[sheetName] = {
-                sheetName: sheetName,
-                sheet: s
-            };
-        });
+        if (!sheet) return null;
 
-        return result;
+        return {
+            ...options.defaults,
+            sheetName: name,
+            sheet: sheet
+        };
     }
 }

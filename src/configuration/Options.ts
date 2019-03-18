@@ -13,6 +13,7 @@ class Options {
      */
     index?: boolean;
 
+    spreadsheet?: GoogleAppsScript.Spreadsheet.Spreadsheet;
     sheetName?: string;
     sheet?: GoogleAppsScript.Spreadsheet.Sheet;
 
@@ -26,6 +27,7 @@ class Options {
         this.offsetA1 = this.offsetA1 || "A1";
         this.index = this.index != null ? this.index : true;
         this.rangeScanLazy = this.rangeScanLazy != null ? this.rangeScanLazy : false;
+        this.spreadsheet = this.spreadsheet || SpreadsheetApp.getActive();
 
         if (this.sheetName == null) {
             if (this.sheet == null)
@@ -34,7 +36,7 @@ class Options {
             this.sheetName = this.sheet.getName();
         }
 
-        this.sheet = this.sheet || SpreadsheetApp.getActive().getSheetByName(this.sheetName);
+        this.sheet = this.sheet || this.spreadsheet.getSheetByName(this.sheetName);
     }
 
 }

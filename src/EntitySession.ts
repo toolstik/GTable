@@ -11,7 +11,7 @@ class EntitySession {
         if (this._types[name])
             return this._types[name];
 
-        const repoOptions = this.options.entities[name] || { sheetName: name };
+        const repoOptions = SessionOptions.getEntityOptions(this.options, name);
         this._types[name] = new Repository(repoOptions);
         return this._types[name];
     }

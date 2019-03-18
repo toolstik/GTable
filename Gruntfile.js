@@ -50,6 +50,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-exec');
 
+    
     grunt.task.registerTask('compile', function (target) {
         if (target == "src") {
             trinspileTs("dist/gibernate.ts");
@@ -58,13 +59,12 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('build:src', ['concat:src', 'compile:src']);
+    grunt.registerTask('build:src', ['exec:clear_dist','concat:src', 'compile:src']);
     grunt.registerTask('build:test', ['build:src', 'concat:spec', 'compile:spec', 'copy:manifest']);
 
     grunt.registerTask('exec:clasp_run_test', ['exec:clasp_run_repo_test', 'exec:clasp_run_session_test']);
 
     grunt.registerTask('push', 'Push content of `dist` directory to Google', [
-        'exec:clear_dist',
         'build:test',
         'exec:clasp_push'
     ]);
